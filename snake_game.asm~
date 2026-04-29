@@ -1,0 +1,70 @@
+ORG 0000H
+LJMP Innit
+; P2 stores 
+
+Innit:
+MOV P1, #000h
+MOV P0, #000h
+MOV P0, #00Ch
+MOV P1, #020h
+LJMP Main
+
+Main:
+LCALL MoveL
+LCALL MoveL
+LCALL MoveL
+LCALL MoveD
+LCALL MoveD
+LCALL MoveD
+LCALL MoveR
+LCALL MoveR
+LCALL MoveR
+LCALL MoveU
+LCALL MoveU
+LCALL MoveD
+LCALL MoveD
+LCALL MoveD
+LCALL MoveD
+LCALL MoveD
+LCALL MoveD
+SJMP MAIN
+
+MoveL:
+MOV A, P0
+MOV B, #002h
+MUL AB
+LCALL CheckB
+MOV P0, A
+RET
+
+MoveR:
+MOV A, P0
+MOV B, #002h
+DIV AB
+LCALL CheckB
+MOV P0, A
+RET
+
+MoveU:
+MOV A, P1
+MOV B, #002h
+MUL AB
+LCALL CheckB
+MOV P1, A
+RET
+
+MoveD:
+MOV A, P1
+MOV B, #002h
+DIV AB
+LCALL CheckB
+MOV P1, A
+RET
+
+CheckB: ;Checks all borders simultaneously
+JB B.0, Stop
+RET
+
+Stop:
+SJMP $
+END
