@@ -1,74 +1,82 @@
 snake_game                                                                                                              PAGE 1
                          1     ORG 0000H
-0000 020003              2     LJMP Innit
-                         3     ; P2 stores
-                         4
-                         5     Innit:
-0003 759000              6     MOV P1, #000h
-0006 758000              7     MOV P0, #000h
-0009 75800C              8     MOV P0, #00Ch
-000C 759020              9     MOV P1, #020h
-000F 020012             10     LJMP Main
-                        11
-                        12     Main:
-0012 120047             13     LCALL MoveL
-0015 120047             14     LCALL MoveL
-0018 120047             15     LCALL MoveL
-001B 12006B             16     LCALL MoveD
-001E 12006B             17     LCALL MoveD
-0021 12006B             18     LCALL MoveD
-0024 120053             19     LCALL MoveR
-0027 120053             20     LCALL MoveR
-002A 120053             21     LCALL MoveR
-002D 12005F             22     LCALL MoveU
-0030 12005F             23     LCALL MoveU
-0033 12006B             24     LCALL MoveD
-0036 12006B             25     LCALL MoveD
-0039 12006B             26     LCALL MoveD
-003C 12006B             27     LCALL MoveD
-003F 12006B             28     LCALL MoveD
-0042 12006B             29     LCALL MoveD
-0045 80CB               30     SJMP MAIN
-                        31
-                        32     MoveL:
-0047 E580               33     MOV A, P0
-0049 75F002             34     MOV B, #002h
-004C A4                 35     MUL AB
-004D 120077             36     LCALL CheckB
-0050 F580               37     MOV P0, A
-0052 22                 38     RET
+  0000                   2     Ro0 DATA 00H
+  0001                   3     Ro1 DATA 01H
+  0002                   4     Ro2 DATA 02H
+  0003                   5     Ro3 DATA 03H
+  0004                   6     Ro4 DATA 04H
+  0005                   7     Ro5 DATA 05H
+  0006                   8     Ro6 DATA 06H
+  0007                   9     Ro7 DATA 07H
+0000 020003             10     LJMP Innit
+                        11     ; P2 stores
+                        12
+                        13     Innit:
+0003 759000             14     MOV P1, #000h
+0006 758000             15     MOV P0, #000h
+0009 75800C             16     MOV P0, #00Ch
+000C 759020             17     MOV P1, #020h
+000F 020012             18     LJMP Main
+                        19
+                        20     Main:
+0012 120047             21     LCALL MoveL
+0015 120047             22     LCALL MoveL
+0018 120047             23     LCALL MoveL
+001B 12006B             24     LCALL MoveD
+001E 12006B             25     LCALL MoveD
+0021 12006B             26     LCALL MoveD
+0024 120053             27     LCALL MoveR
+0027 120053             28     LCALL MoveR
+002A 120053             29     LCALL MoveR
+002D 12005F             30     LCALL MoveU
+0030 12005F             31     LCALL MoveU
+0033 12006B             32     LCALL MoveD
+0036 12006B             33     LCALL MoveD
+0039 12006B             34     LCALL MoveD
+003C 12006B             35     LCALL MoveD
+003F 12006B             36     LCALL MoveD
+0042 12006B             37     LCALL MoveD
+0045 80CB               38     SJMP MAIN
                         39
-                        40     MoveR:
-0053 E580               41     MOV A, P0
-0055 75F002             42     MOV B, #002h
-0058 84                 43     DIV AB
-0059 120077             44     LCALL CheckB
-005C F580               45     MOV P0, A
-005E 22                 46     RET
+                        40     MoveL:
+0047 E580               41     MOV A, P0
+0049 75F002             42     MOV B, #002h
+004C A4                 43     MUL AB
+004D 120077             44     LCALL CheckB
+0050 F580               45     MOV P0, A
+0052 22                 46     RET
                         47
-                        48     MoveU:
-005F E590               49     MOV A, P1
-0061 75F002             50     MOV B, #002h
-0064 A4                 51     MUL AB
-0065 120077             52     LCALL CheckB
-0068 F590               53     MOV P1, A
-006A 22                 54     RET
+                        48     MoveR:
+0053 E580               49     MOV A, P0
+0055 75F002             50     MOV B, #002h
+0058 84                 51     DIV AB
+0059 120077             52     LCALL CheckB
+005C F580               53     MOV P0, A
+005E 22                 54     RET
                         55
-                        56     MoveD:
-006B E590               57     MOV A, P1
-006D 75F002             58     MOV B, #002h
-0070 84                 59     DIV AB
-0071 120077             60     LCALL CheckB
-0074 F590               61     MOV P1, A
-0076 22                 62     RET
+                        56     MoveU:
+005F E590               57     MOV A, P1
+0061 75F002             58     MOV B, #002h
+0064 A4                 59     MUL AB
+0065 120077             60     LCALL CheckB
+0068 F590               61     MOV P1, A
+006A 22                 62     RET
                         63
-                        64     CheckB: ;Checks all borders simultaneously
-0077 20F001             65     JB B.0, Stop
-007A 22                 66     RET
-                        67
-                        68     Stop:
-007B 80FE               69     SJMP $
-                        70     END
+                        64     MoveD:
+006B E590               65     MOV A, P1
+006D 75F002             66     MOV B, #002h
+0070 84                 67     DIV AB
+0071 120077             68     LCALL CheckB
+0074 F590               69     MOV P1, A
+0076 22                 70     RET
+                        71
+                        72     CheckB: ;Checks all borders simultaneously
+0077 20F001             73     JB B.0, Stop
+007A 22                 74     RET
+                        75
+                        76     Stop:
+007B 80FE               77     SJMP $
+                        78     END
 ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
 
@@ -209,6 +217,14 @@ RD . . . . . . . . . . . . . . . . .  B  ADDR  00B7H  NOT USED
 REN. . . . . . . . . . . . . . . . .  B  ADDR  009CH  NOT USED
 RESET. . . . . . . . . . . . . . . .  C  ADDR  0000H  NOT USED
 RI . . . . . . . . . . . . . . . . .  B  ADDR  0098H  NOT USED
+RO0. . . . . . . . . . . . . . . . .  D  ADDR  0000H  NOT USED
+RO1. . . . . . . . . . . . . . . . .  D  ADDR  0001H  NOT USED
+RO2. . . . . . . . . . . . . . . . .  D  ADDR  0002H  NOT USED
+RO3. . . . . . . . . . . . . . . . .  D  ADDR  0003H  NOT USED
+RO4. . . . . . . . . . . . . . . . .  D  ADDR  0004H  NOT USED
+RO5. . . . . . . . . . . . . . . . .  D  ADDR  0005H  NOT USED
+RO6. . . . . . . . . . . . . . . . .  D  ADDR  0006H  NOT USED
+RO7. . . . . . . . . . . . . . . . .  D  ADDR  0007H  NOT USED
 RS0. . . . . . . . . . . . . . . . .  B  ADDR  00D3H  NOT USED
 RS1. . . . . . . . . . . . . . . . .  B  ADDR  00D4H  NOT USED
 RXD. . . . . . . . . . . . . . . . .  B  ADDR  00B0H  NOT USED
