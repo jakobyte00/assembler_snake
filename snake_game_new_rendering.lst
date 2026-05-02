@@ -17,8 +17,8 @@ snake_game_new_rendering                                                        
   0030                  16     Pby DATA 030H
   0031                  17     Pbx DATA 031H
                         18     ;Snake haed and tail indices
-  0032                  19     Headidx DATA 032H
-  0033                  20     Tailidx DATA 033H
+  0032                  19     HeadIdx DATA 032H
+  0033                  20     TailIdx DATA 033H
                         21     ;Snake pixels ring buffer
                         22     ;y-coordinates from 40H to 4FH
                         23     ;x-coordinates from 50H to 5FH
@@ -59,121 +59,106 @@ snake_game_new_rendering                                                        
 0033 22                 58     RET
                         59
                         60     MoveL:
-                        61         ; --- 1. NEUEN KOPF BERECHNEN ---
-                        62         ; Aktuellen Kopf aus dem Puffer auslesen
-0034 7450               63         MOV A, #50H     ; Basis-Adresse X-Array
-0036 2532               64         ADD A, HeadIdx  ; Aktuellen Kopf-Index addieren
-0038 F8                 65         MOV R0, A       ; R0 zeigt jetzt auf X-Wert des Kopfes
-0039 E6                 66         MOV A, @R0      ; A = Aktuelle X-Maske
-003A 75F002             67         MOV B, #002h
-003D A4                 68         MUL AB          ; Multiplizieren = Verschiebung nach links
-003E F531               69         MOV Pbx, A      ; Neuen X-Wert in Pbx merken
-                        70
-0040 7440               71         MOV A, #40H     ; Basis-Adresse Y-Array
-0042 2532               72         ADD A, HeadIdx
-0044 F8                 73         MOV R0, A       ; R0 zeigt jetzt auf Y-Wert des Kopfes
-0045 E6                 74         MOV A, @R0      ; A = Aktuelle Y-Adresse
-0046 F530               75         MOV Pby, A      ; Neuen Y-Wert in Pby merken (bleibt gleich bei MoveL)
-                        76
-                        77         ; --- 2. NEUEN KOPF IM PUFFER SPEICHERN ---
-                        78         ; HeadIdx erhöhen (mit automatischem Überlauf bei 16)
-0048 E532               79         MOV A, HeadIdx
-004A 04                 80         INC A
-004B 540F               81         ANL A, #0FH     ; Hält den Index streng zwischen 0 und 15 (Modulo 16)
-004D F532               82         MOV HeadIdx, A
-                        83
-                        84         ; Neue Werte in den Ringpuffer schreiben
-004F 7450               85         MOV A, #50H
-0051 2532               86         ADD A, HeadIdx
-0053 F8                 87         MOV R0, A
-0054 E531               88         MOV A, Pbx
-0056 F6                 89         MOV @R0, A      ; X-Maske in neuen Head-Slot geschrieben
-                        90
-0057 7440               91         MOV A, #40H
-0059 2532               92         ADD A, HeadIdx
-005B F8                 93         MOV R0, A
-005C E530               94         MOV A, Pby
-005E F6                 95         MOV @R0, A      ; Y-Adresse in neuen Head-Slot geschrieben
+                        61     ;Read current head y and x
+0034 7450               62     MOV A, #50H
+0036 2532               63     ADD A, HeadIdx
+0038 F8                 64     MOV R0, A
+0039 E6                 65     MOV A, @R0
+003A 75F002             66     MOV B, #002h
+003D A4                 67     MUL AB
+003E F531               68     MOV Pbx, A
+                        69
+0040 7440               70     MOV A, #40H
+0042 2532               71     ADD A, HeadIdx
+0044 F8                 72     MOV R0, A
+0045 E6                 73     MOV A, @R0
+0046 F530               74     MOV Pby, A
+                        75
+                        76     ;Increment head index
+0048 E532               77     MOV A, HeadIdx
+004A 04                 78     INC A
+004B 540F               79     ANL A, #0FH     ; Hält den Index streng zwischen 0 und 15 (Modulo 16)
+004D F532               80     MOV HeadIdx, A
+                        81
+                        82     ;Add new head to screen
+004F 7450               83     MOV A, #50H
+0051 2532               84     ADD A, HeadIdx
+0053 F8                 85     MOV R0, A
+0054 E531               86     MOV A, Pbx
+0056 F6                 87     MOV @R0, A
+                        88
+0057 7440               89     MOV A, #40H
+0059 2532               90     ADD A, HeadIdx
+005B F8                 91     MOV R0, A
+005C E530               92     MOV A, Pby
+005E F6                 93     MOV @R0, A
+                        94
+005F 120022             95     LCALL SetPixelFBuffer
                         96
-                        97         ; --- 3. NEUEN KOPF ZEICHNEN ---
-005F 120022             98         LCALL SetPixelFBuffer
-                        99
-                       100         ; --- 4. ALTEN SCHWANZ LÖSCHEN ---
-                       101         ; Alte Schwanz-Koordinaten aus dem Puffer lesen
-0062 7450              102         MOV A, #50H
-0064 2533              103         ADD A, TailIdx
-0066 F8                104         MOV R0, A
-0067 E6                105         MOV A, @R0
-0068 F531              106         MOV Pbx, A      ; Maske des Schwanzes
-                       107
-006A 7440              108         MOV A, #40H
-006C 2533              109         ADD A, TailIdx
-006E F8                110         MOV R0, A
-006F E6                111         MOV A, @R0
-0070 F530              112         MOV Pby, A      ; Y-Adresse des Schwanzes
-                       113
-                       114         ; Schwanz vom Bildschirm löschen
-0072 12002C            115         LCALL DelPixelFBuffer
-                       116
-                       117         ; --- 5. SCHWANZ-POINTER WEITERSCHIEBEN ---
-                       118         ; Der alte Schwanz ist gelöscht, das nächste Glied ist jetzt der Schwanz
-0075 E533              119         MOV A, TailIdx
-0077 04                120         INC A
-0078 540F              121         ANL A, #0FH     ; Wrap-around 0-15
-007A F533              122         MOV TailIdx, A
-                       123
-007C 22                124         RET
+                        97     ;Delete old tail from screen
+0062 7450               98     MOV A, #50H
+0064 2533               99     ADD A, TailIdx
+0066 F8                100     MOV R0, A
+0067 E6                101     MOV A, @R0
+0068 F531              102     MOV Pbx, A
+                       103
+006A 7440              104     MOV A, #40H
+006C 2533              105     ADD A, TailIdx
+006E F8                106     MOV R0, A
+006F E6                107     MOV A, @R0
+0070 F530              108     MOV Pby, A
+                       109
+0072 12002C            110     LCALL DelPixelFBuffer
+                       111
+                       112     ;Move head
+0075 E533              113     MOV A, TailIdx
+0077 04                114     INC A
+0078 540F              115     ANL A, #0FH     ; Wrap around 0-15
+007A F533              116     MOV TailIdx, A
+                       117
+007C 22                118     RET
+                       119
+                       120
+                       121     Main:
+007D 120034            122     LCALL MoveL
+0080 120085            123     LCALL Render
+0083 80F8              124     SJMP Main
                        125
-                       126
-                       127     Main:
-007D 120022            128     LCALL SetPixelFBuffer
-0080 12002C            129     LCALL DelPixelFBuffer
-0083 8002              130     SJMP Render
-0085 80F6              131     SJMP Main
-                       132
-                       133     Render:
-                       134     ;Initialize row index to the first row
-0087 752920            135     MOV Powx, #020h ;(Ze0)
-                       136     ;Put voltage on the first row
-008A 752880            137     MOV Powy, #080h
-008D 8000              138     SJMP RenderLoop
-                       139
-                       140     RenderLoop:
-008F A829              141     MOV R0, Powx
-                       142     ;Cut power to all previous LEDs
-0091 759000            143     MOV P1, #000h
-                       144     ;Load next line data
-0094 8680              145     MOV P0, @R0
-                       146     ;Load next power aligment
-0096 852890            147     MOV P1, Powy
-                       148     ;Increment row index for rendering:
-0099 08                149     INC R0
-009A 8829              150     Mov Powx, R0
-                       151     ;Bit-Shift active voltage by one postion
-                       152     ;Save power aligment to Accu
-009C E528              153     MOV A, Powy
-009E 75F002            154     MOV B, #002h
-00A1 84                155     DIV AB
-00A2 F528              156     MOV Powy, A
+                       126     Render:
+                       127     ;Initialize row index to the first row
+0085 752920            128     MOV Powx, #020h ;(Ze0)
+                       129     ;Put voltage on the first row
+0088 752880            130     MOV Powy, #080h
+                       131
+                       132     RenderLoop:
+008B A829              133     MOV R0, Powx
+                       134     ;Cut power to all previous LEDs
+008D 759000            135     MOV P1, #000h
+                       136     ;Load next line data
+0090 8680              137     MOV P0, @R0
+                       138     ;Load next power aligment
+0092 852890            139     MOV P1, Powy
+                       140     ;Increment row index for rendering:
+0095 08                141     INC R0
+0096 8829              142     Mov Powx, R0
+                       143     ;Bit-Shift active voltage by one postion
+                       144     ;Save power aligment to Accu
+0098 E528              145     MOV A, Powy
+009A 75F002            146     MOV B, #002h
+009D 84                147     DIV AB
+009E F528              148     MOV Powy, A
+                       149
+                       150     ;Check if the last row has been reached and reset if true
+00A0 E529              151     MOV A, Powx
+00A2 B428E6            152     CJNE A, #028h, RenderLoop
+00A5 22                153     RET
+                       154
+                       155     Return: ;Mapping function
+00A6 22                156     RET
                        157
-                       158     ;Check whether the last row has been rendered and we need to return to zero
-00A4 1200AA            159     LCALL CheckLR
-00A7 02008F            160     LJMP RenderLoop
-                       161
-                       162     CheckLR: ;Check if the last row has been reached and reset if true
-00AA E529              163     MOV A, Powx
-00AC B4280A            164     CJNE A, #028h, Return
-00AF 752880            165     MOV Powy, #080h
-00B2 752920            166     MOV Powx, #020h
-00B5 120034            167     LCALL MoveL
-00B8 22                168     RET
-                       169
-                       170     Return: ;Mapping function
-00B9 22                171     RET
-                       172
-                       173     Stop:
-00BA 80FE              174     SJMP $
-                       175     END
+                       158     Stop:
+00A7 80FE              159     SJMP $
+                       160     END
 ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
 
@@ -220,7 +205,6 @@ CCF4 . . . . . . . . . . . . . . . .  B  ADDR  00DCH  NOT USED
 CCON . . . . . . . . . . . . . . . .  D  ADDR  00D8H  NOT USED
 CFINT. . . . . . . . . . . . . . . .  C  ADDR  0033H  NOT USED
 CH . . . . . . . . . . . . . . . . .  D  ADDR  00F9H  NOT USED
-CHECKLR. . . . . . . . . . . . . . .  C  ADDR  00AAH
 CKCON. . . . . . . . . . . . . . . .  D  ADDR  008FH  NOT USED
 CKCON0 . . . . . . . . . . . . . . .  D  ADDR  008FH  NOT USED
 CKRL . . . . . . . . . . . . . . . .  D  ADDR  0097H  NOT USED
@@ -315,10 +299,10 @@ RCAP2L . . . . . . . . . . . . . . .  D  ADDR  00CAH  NOT USED
 RCLK . . . . . . . . . . . . . . . .  B  ADDR  00CDH  NOT USED
 RD . . . . . . . . . . . . . . . . .  B  ADDR  00B7H  NOT USED
 REN. . . . . . . . . . . . . . . . .  B  ADDR  009CH  NOT USED
-RENDER . . . . . . . . . . . . . . .  C  ADDR  0087H
-RENDERLOOP . . . . . . . . . . . . .  C  ADDR  008FH
+RENDER . . . . . . . . . . . . . . .  C  ADDR  0085H
+RENDERLOOP . . . . . . . . . . . . .  C  ADDR  008BH
 RESET. . . . . . . . . . . . . . . .  C  ADDR  0000H  NOT USED
-RETURN . . . . . . . . . . . . . . .  C  ADDR  00B9H
+RETURN . . . . . . . . . . . . . . .  C  ADDR  00A6H  NOT USED
 RI . . . . . . . . . . . . . . . . .  B  ADDR  0098H  NOT USED
 RS0. . . . . . . . . . . . . . . . .  B  ADDR  00D3H  NOT USED
 RS1. . . . . . . . . . . . . . . . .  B  ADDR  00D4H  NOT USED
@@ -343,7 +327,7 @@ SPDAT. . . . . . . . . . . . . . . .  D  ADDR  00C5H  NOT USED
 SPDR . . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 SPSR . . . . . . . . . . . . . . . .  D  ADDR  00AAH  NOT USED
 SPSTA. . . . . . . . . . . . . . . .  D  ADDR  00C4H  NOT USED
-STOP . . . . . . . . . . . . . . . .  C  ADDR  00BAH  NOT USED
+STOP . . . . . . . . . . . . . . . .  C  ADDR  00A7H  NOT USED
 T0 . . . . . . . . . . . . . . . . .  B  ADDR  00B4H  NOT USED
 T1 . . . . . . . . . . . . . . . . .  B  ADDR  00B5H  NOT USED
 T2CON. . . . . . . . . . . . . . . .  D  ADDR  00C8H  NOT USED
