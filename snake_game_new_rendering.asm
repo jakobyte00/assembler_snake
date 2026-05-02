@@ -1,5 +1,6 @@
 ORG 000H
-;Image row adresses
+
+;Image row adresses (y):
 Ze0 DATA 020H
 Ze1 DATA 021H
 Ze2 DATA 022H
@@ -8,21 +9,27 @@ Ze4 DATA 024H
 Ze5 DATA 025H
 Ze6 DATA 026H
 Ze7 DATA 027H
-;Rendering
+;Rendering buffer:
 Powy DATA 028H
 Powx DATA 029H
-;Pixel buffer (x|y)
+;Pixel buffer (x|y):
 Pby DATA 030H
 Pbx DATA 031H
+;First and last pixel (x|y):
+FPy DATA 032H
+FPx DATA 033H
+LPy DATA 034H
+LPx DATA 035H
 
 SJMP Innit
+
 Innit:
-MOV Pby, #026h
-MOV Pbx, #002h
-MOV Ze0, #080h
-MOV Ze1, #018h
-MOV Ze2, #008h
-MOV Ze3, #010h
+MOV Ze3, #00Eh
+MOV Ze4, #002h
+MOV FPy, #023h
+MOV FPx, Ze3
+MOV LPy, #024h
+MOV LPx, #002h
 SJMP Main
 
 SetPixelFBuffer:
@@ -39,6 +46,20 @@ MOV A, @R1
 MOV B, Pbx
 SUBB A, B
 MOV @R1, A
+RET
+
+MoveL:
+MOV A, FPx
+MOV B, #002h
+MUL AB
+ORL A, FPx
+MOV FPx, A
+MOV Pbx, FPx
+MOV Pby, FPy
+LCALL SetPixelFBuffer
+MOV Pbx, LPx
+MOV Pby, LPy
+LCALL DelPixelFBuffer
 RET
 
 Main:
@@ -71,9 +92,12 @@ MOV A, Powy
 MOV B, #002h
 DIV AB
 MOV Powy, A
+
+LCALL MoveL
+
 ;Check whether the last row has been rendered and we need to return to zero
 LCALL CheckLR
-SJMP RenderLoop
+LJMP RenderLoop
 
 CheckLR: ;Check if the last row has been reached and reset if true
 MOV A, Powx
