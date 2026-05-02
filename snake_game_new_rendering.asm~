@@ -15,21 +15,30 @@ Powx DATA 029H
 ;Pixel buffer (x|y):
 Pby DATA 030H
 Pbx DATA 031H
-;First and last pixel (x|y):
-FPy DATA 032H
-FPx DATA 033H
-LPy DATA 034H
-LPx DATA 035H
+;Snake haed and tail indices
+Headidx DATA 032H
+Tailidx DATA 033H
+;Snake pixels ring buffer
+;y-coordinates from 40H to 4FH
+;x-coordinates from 50H to 5FH
 
 SJMP Innit
 
 Innit:
-MOV Ze3, #00Eh
-MOV Ze4, #002h
-MOV FPy, #023h
-MOV FPx, Ze3
-MOV LPy, #024h
-MOV LPx, #002h
+;Draw initial snake
+MOV Ze3, #00Ch
+MOV Ze4, #004h
+;Save initial snake to ring buffer
+MOV 42H, #023h
+MOV 52H, #008h
+MOV 41H, #023h
+MOV 51H, #004h
+MOV 40H, #024h
+MOV 50H, #004h
+;Save initial indices
+MOV Headidx, #002h
+MOV Tailidx, #000h
+
 SJMP Main
 
 SetPixelFBuffer:
@@ -41,26 +50,79 @@ MOV @R1, A
 RET
 
 DelPixelFBuffer:
+MOV A, Pbx
+CPL A
 MOV R1, Pby
-MOV A, @R1
-MOV B, Pbx
-SUBB A, B
+ANL A, @R1
 MOV @R1, A
 RET
 
 MoveL:
-MOV A, FPx
-MOV B, #002h
-MUL AB
-ORL A, FPx
-MOV FPx, A
-MOV Pbx, FPx
-MOV Pby, FPy
-LCALL SetPixelFBuffer
-MOV Pbx, LPx
-MOV Pby, LPy
-LCALL DelPixelFBuffer
-RET
+    ; --- 1. NEUEN KOPF BERECHNEN ---
+    ; Aktuellen Kopf aus dem Puffer auslesen
+    MOV A, #50H     ; Basis-Adresse X-Array
+    ADD A, HeadIdx  ; Aktuellen Kopf-Index addieren
+    MOV R0, A       ; R0 zeigt jetzt auf X-Wert des Kopfes
+    MOV A, @R0      ; A = Aktuelle X-Maske
+    MOV B, #002h
+    MUL AB          ; Multiplizieren = Verschiebung nach links
+    MOV Pbx, A      ; Neuen X-Wert in Pbx merken
+
+    MOV A, #40H     ; Basis-Adresse Y-Array
+    ADD A, HeadIdx
+    MOV R0, A       ; R0 zeigt jetzt auf Y-Wert des Kopfes
+    MOV A, @R0      ; A = Aktuelle Y-Adresse 
+    MOV Pby, A      ; Neuen Y-Wert in Pby merken (bleibt gleich bei MoveL)
+
+    ; --- 2. NEUEN KOPF IM PUFFER SPEICHERN ---
+    ; HeadIdx erhöhen (mit automatischem Überlauf bei 16)
+    MOV A, HeadIdx
+    INC A
+    ANL A, #0FH     ; Hält den Index streng zwischen 0 und 15 (Modulo 16)
+    MOV HeadIdx, A
+
+    ; Neue Werte in den Ringpuffer schreiben
+    MOV A, #50H
+    ADD A, HeadIdx
+    MOV R0, A
+    MOV A, Pbx
+    MOV @R0, A      ; X-Maske in neuen Head-Slot geschrieben
+
+    MOV A, #40H
+    ADD A, HeadIdx
+    MOV R0, A
+    MOV A, Pby
+    MOV @R0, A      ; Y-Adresse in neuen Head-Slot geschrieben
+
+    ; --- 3. NEUEN KOPF ZEICHNEN ---
+    LCALL SetPixelFBuffer
+
+    ; --- 4. ALTEN SCHWANZ LÖSCHEN ---
+    ; Alte Schwanz-Koordinaten aus dem Puffer lesen
+    MOV A, #50H
+    ADD A, TailIdx
+    MOV R0, A
+    MOV A, @R0
+    MOV Pbx, A      ; Maske des Schwanzes
+
+    MOV A, #40H
+    ADD A, TailIdx
+    MOV R0, A
+    MOV A, @R0
+    MOV Pby, A      ; Y-Adresse des Schwanzes
+
+    ; Schwanz vom Bildschirm löschen
+    LCALL DelPixelFBuffer
+
+    ; --- 5. SCHWANZ-POINTER WEITERSCHIEBEN ---
+    ; Der alte Schwanz ist gelöscht, das nächste Glied ist jetzt der Schwanz
+    MOV A, TailIdx
+    INC A
+    ANL A, #0FH     ; Wrap-around 0-15
+    MOV TailIdx, A
+
+    RET
+
 
 Main:
 LCALL SetPixelFBuffer
@@ -93,8 +155,6 @@ MOV B, #002h
 DIV AB
 MOV Powy, A
 
-LCALL MoveL
-
 ;Check whether the last row has been rendered and we need to return to zero
 LCALL CheckLR
 LJMP RenderLoop
@@ -104,6 +164,7 @@ MOV A, Powx
 CJNE A, #028h, Return
 MOV Powy, #080h
 MOV Powx, #020h
+LCALL MoveL
 RET
 
 Return: ;Mapping function
