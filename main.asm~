@@ -1,11 +1,13 @@
 ORG 000H
-SJMP Innit
+LJMP Innit
 
 $INCLUDE (definitions.asm)
 $INCLUDE (snake.asm)
 $INCLUDE (render.asm)
 
 Innit:
+;Reset input
+MOV P2, #070h
 ;Draw initial snake
 MOV Ze3, #00Ch
 MOV Ze4, #004h
@@ -22,11 +24,20 @@ MOV TailIdx, #000h
 
 SJMP Main
 
-
 Main:
-LCALL MoveL
 LCALL Render
-SJMP Main
+MOV A, P2
+CJNE A, #070H, TryRight
+LJMP MoveL
+TryRight:
+CJNE A, #0E0H, TryUp
+;LJMP MoveR
+TryUp:
+CJNE A, #0B0H, TryDown
+;LJMP MoveU
+TryDown:
+CJNE A, #0D0H, Main
+;LJMP MoveD
 
 Stop:
 SJMP $

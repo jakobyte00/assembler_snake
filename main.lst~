@@ -122,7 +122,7 @@ main                                                                            
                        121
                        122     Innit:
                        123     ;Reset input
-0083 75A070            124     MOV P2, #070h
+0083 75A0F0            124     MOV P2, #0F0h
                        125     ;Draw initial snake
 0086 75230C            126     MOV Ze3, #00Ch
 0089 752404            127     MOV Ze4, #004h
