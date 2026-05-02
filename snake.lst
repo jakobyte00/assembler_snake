@@ -1,166 +1,125 @@
-snake_game_new_rendering                                                                                                PAGE 1
-                         1     ORG 000H
-                         2
-                         3     ;Image row adresses (y):
-  0020                   4     Ze0 DATA 020H
-  0021                   5     Ze1 DATA 021H
-  0022                   6     Ze2 DATA 022H
-  0023                   7     Ze3 DATA 023H
-  0024                   8     Ze4 DATA 024H
-  0025                   9     Ze5 DATA 025H
-  0026                  10     Ze6 DATA 026H
-  0027                  11     Ze7 DATA 027H
-                        12     ;Rendering buffer:
-  0028                  13     Powy DATA 028H
-  0029                  14     Powx DATA 029H
-                        15     ;Pixel buffer (x|y):
-  0030                  16     Pby DATA 030H
-  0031                  17     Pbx DATA 031H
-                        18     ;Snake haed and tail indices
-  0032                  19     HeadIdx DATA 032H
-  0033                  20     TailIdx DATA 033H
-                        21     ;Snake pixels ring buffer
-                        22     ;y-coordinates from 40H to 4FH
-                        23     ;x-coordinates from 50H to 5FH
-                        24
-0000 8000               25     SJMP Innit
+snake                                                                                                                   PAGE 1
+                         1     SetPixelFBuffer:
+                         2     MOV R1, Pby
+****ERROR:Symbolnotdefined:pby
+                         3     MOV A, @R1
+                         4     MOV B, Pbx
+****ERROR:Symbolnotdefined:pbx
+                         5     ORL A, B
+                         6     MOV @R1, A
+                         7     RET
+                         8
+                         9     DelPixelFBuffer:
+                        10     MOV A, Pbx
+****ERROR:Symbolnotdefined:pbx
+                        11     CPL A
+                        12     MOV R1, Pby
+****ERROR:Symbolnotdefined:pby
+                        13     ANL A, @R1
+                        14     MOV @R1, A
+                        15     RET
+                        16
+                        17     MoveL:
+                        18     ;Read current head x and y
+                        19     MOV A, #50H
+                        20     ADD A, HeadIdx
+****ERROR:Symbolnotdefined:headidx
+                        21     MOV R0, A
+                        22     MOV A, @R0
+                        23     MOV B, #002h
+                        24     MUL AB
+                        25     MOV Pbx, A
+****ERROR:Symbolnotdefined:pbx
                         26
-                        27     Innit:
-                        28     ;Draw initial snake
-0002 75230C             29     MOV Ze3, #00Ch
-0005 752404             30     MOV Ze4, #004h
-                        31     ;Save initial snake to ring buffer
-0008 754223             32     MOV 42H, #023h
-000B 755208             33     MOV 52H, #008h
-000E 754123             34     MOV 41H, #023h
-0011 755104             35     MOV 51H, #004h
-0014 754024             36     MOV 40H, #024h
-0017 755004             37     MOV 50H, #004h
-                        38     ;Save initial indices
-001A 753202             39     MOV Headidx, #002h
-001D 753300             40     MOV Tailidx, #000h
-                        41
-0020 805B               42     SJMP Main
-                        43
-                        44     SetPixelFBuffer:
-0022 A930               45     MOV R1, Pby
-0024 E7                 46     MOV A, @R1
-0025 8531F0             47     MOV B, Pbx
-0028 45F0               48     ORL A, B
-002A F7                 49     MOV @R1, A
-002B 22                 50     RET
+                        27     MOV A, #40H
+                        28     ADD A, HeadIdx
+****ERROR:Symbolnotdefined:headidx
+                        29     MOV R0, A
+                        30     MOV A, @R0
+                        31     MOV Pby, A
+****ERROR:Symbolnotdefined:pby
+                        32
+                        33     ;Move head pointer
+                        34     MOV A, HeadIdx
+****ERROR:Symbolnotdefined:headidx
+                        35     INC A
+                        36     ANL A, #0FH
+                        37     MOV HeadIdx, A
+****ERROR:Symbolnotdefined:headidx
+                        38
+                        39     ;Add new head to screen
+                        40     MOV A, #50H
+                        41     ADD A, HeadIdx
+****ERROR:Symbolnotdefined:headidx
+                        42     MOV R0, A
+                        43     MOV A, Pbx
+****ERROR:Symbolnotdefined:pbx
+                        44     MOV @R0, A
+                        45
+                        46     MOV A, #40H
+                        47     ADD A, HeadIdx
+****ERROR:Symbolnotdefined:headidx
+                        48     MOV R0, A
+                        49     MOV A, Pby
+****ERROR:Symbolnotdefined:pby
+                        50     MOV @R0, A
                         51
-                        52     DelPixelFBuffer:
-002C E531               53     MOV A, Pbx
-002E F4                 54     CPL A
-002F A930               55     MOV R1, Pby
-0031 57                 56     ANL A, @R1
-0032 F7                 57     MOV @R1, A
-0033 22                 58     RET
-                        59
-                        60     MoveL:
-                        61     ;Read current head y and x
-0034 7450               62     MOV A, #50H
-0036 2532               63     ADD A, HeadIdx
-0038 F8                 64     MOV R0, A
-0039 E6                 65     MOV A, @R0
-003A 75F002             66     MOV B, #002h
-003D A4                 67     MUL AB
-003E F531               68     MOV Pbx, A
-                        69
-0040 7440               70     MOV A, #40H
-0042 2532               71     ADD A, HeadIdx
-0044 F8                 72     MOV R0, A
-0045 E6                 73     MOV A, @R0
-0046 F530               74     MOV Pby, A
-                        75
-                        76     ;Increment head index
-0048 E532               77     MOV A, HeadIdx
-004A 04                 78     INC A
-004B 540F               79     ANL A, #0FH     ; Hält den Index streng zwischen 0 und 15 (Modulo 16)
-004D F532               80     MOV HeadIdx, A
-                        81
-                        82     ;Add new head to screen
-004F 7450               83     MOV A, #50H
-0051 2532               84     ADD A, HeadIdx
-0053 F8                 85     MOV R0, A
-0054 E531               86     MOV A, Pbx
-0056 F6                 87     MOV @R0, A
-                        88
-0057 7440               89     MOV A, #40H
-0059 2532               90     ADD A, HeadIdx
-005B F8                 91     MOV R0, A
-005C E530               92     MOV A, Pby
-005E F6                 93     MOV @R0, A
-                        94
-005F 120022             95     LCALL SetPixelFBuffer
-                        96
-                        97     ;Delete old tail from screen
-0062 7450               98     MOV A, #50H
-0064 2533               99     ADD A, TailIdx
-0066 F8                100     MOV R0, A
-0067 E6                101     MOV A, @R0
-0068 F531              102     MOV Pbx, A
-                       103
-006A 7440              104     MOV A, #40H
-006C 2533              105     ADD A, TailIdx
-006E F8                106     MOV R0, A
-006F E6                107     MOV A, @R0
-0070 F530              108     MOV Pby, A
-                       109
-0072 12002C            110     LCALL DelPixelFBuffer
-                       111
-                       112     ;Move head
-0075 E533              113     MOV A, TailIdx
-0077 04                114     INC A
-0078 540F              115     ANL A, #0FH     ; Wrap around 0-15
-007A F533              116     MOV TailIdx, A
-                       117
-007C 22                118     RET
-                       119
-                       120
-                       121     Main:
-007D 120034            122     LCALL MoveL
-0080 120085            123     LCALL Render
-0083 80F8              124     SJMP Main
-                       125
-                       126     Render:
-                       127     ;Initialize row index to the first row
-0085 752920            128     MOV Powx, #020h ;(Ze0)
-                       129     ;Put voltage on the first row
-0088 752880            130     MOV Powy, #080h
-                       131
-                       132     RenderLoop:
-008B A829              133     MOV R0, Powx
-                       134     ;Cut power to all previous LEDs
-008D 759000            135     MOV P1, #000h
-                       136     ;Load next line data
-0090 8680              137     MOV P0, @R0
-                       138     ;Load next power aligment
-0092 852890            139     MOV P1, Powy
-                       140     ;Increment row index for rendering:
-0095 08                141     INC R0
-0096 8829              142     Mov Powx, R0
-                       143     ;Bit-Shift active voltage by one postion
-                       144     ;Save power aligment to Accu
-0098 E528              145     MOV A, Powy
-009A 75F002            146     MOV B, #002h
-009D 84                147     DIV AB
-009E F528              148     MOV Powy, A
-                       149
-                       150     ;Check if the last row has been reached and reset if true
-00A0 E529              151     MOV A, Powx
-00A2 B428E6            152     CJNE A, #028h, RenderLoop
-00A5 22                153     RET
-                       154
-                       155     Return: ;Mapping function
-00A6 22                156     RET
-                       157
-                       158     Stop:
-00A7 80FE              159     SJMP $
-                       160     END
-ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
+                        52     LCALL SetPixelFBuffer
+                        53
+                        54     ;Delete old tail from screen
+                        55     MOV A, #50H
+                        56     ADD A, TailIdx
+****ERROR:Symbolnotdefined:tailidx
+                        57     MOV R0, A
+                        58     MOV A, @R0
+                        59     MOV Pbx, A
+****ERROR:Symbolnotdefined:pbx
+                        60
+                        61     MOV A, #40H
+                        62     ADD A, TailIdx
+****ERROR:Symbolnotdefined:tailidx
+                        63     MOV R0, A
+                        64     MOV A, @R0
+                        65     MOV Pby, A
+****ERROR:Symbolnotdefined:pby
+                        66
+                        67     LCALL DelPixelFBuffer
+                        68
+                        69     ;Move tail pointer
+                        70     MOV A, TailIdx
+****ERROR:Symbolnotdefined:tailidx
+                        71     INC A
+                        72     ANL A, #0FH     ; Wrap around 0-15
+                        73     MOV TailIdx, A
+****ERROR:Symbolnotdefined:tailidx
+                        74
+                        75     RET
+****WARNING:Missing`END'directive
+ASSEMBLY COMPLETE, NO ERRORS FOUND, 21 WARNINGS
 
+
+ERROR SUMMARY:
+Line 2, ERROR:Symbolnotdefined:pby
+Line 5, ERROR:Symbolnotdefined:pbx
+Line 12, ERROR:Symbolnotdefined:pbx
+Line 15, ERROR:Symbolnotdefined:pby
+Line 24, ERROR:Symbolnotdefined:headidx
+Line 30, ERROR:Symbolnotdefined:pbx
+Line 34, ERROR:Symbolnotdefined:headidx
+Line 38, ERROR:Symbolnotdefined:pby
+Line 42, ERROR:Symbolnotdefined:headidx
+Line 46, ERROR:Symbolnotdefined:headidx
+Line 51, ERROR:Symbolnotdefined:headidx
+Line 54, ERROR:Symbolnotdefined:pbx
+Line 59, ERROR:Symbolnotdefined:headidx
+Line 62, ERROR:Symbolnotdefined:pby
+Line 70, ERROR:Symbolnotdefined:tailidx
+Line 74, ERROR:Symbolnotdefined:pbx
+Line 78, ERROR:Symbolnotdefined:tailidx
+Line 82, ERROR:Symbolnotdefined:pby
+Line 88, ERROR:Symbolnotdefined:tailidx
+Line 92, ERROR:Symbolnotdefined:tailidx
+Line 95, WARNING:Missing`END'directive
 
 SYMBOL TABLE:
 ??MCU_8051_IDE . . . . . . . . . . .  N  NUMB  8051H  NOT USED
@@ -216,7 +175,7 @@ CPRL2. . . . . . . . . . . . . . . .  B  ADDR  00C8H  NOT USED
 CR . . . . . . . . . . . . . . . . .  B  ADDR  00DEH  NOT USED
 CT2. . . . . . . . . . . . . . . . .  B  ADDR  00C9H  NOT USED
 CY . . . . . . . . . . . . . . . . .  B  ADDR  00D7H  NOT USED
-DELPIXELFBUFFER. . . . . . . . . . .  C  ADDR  002CH
+DELPIXELFBUFFER. . . . . . . . . . .  C  ADDR  000AH
 DP0H . . . . . . . . . . . . . . . .  D  ADDR  0083H  NOT USED
 DP0L . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
 DP1H . . . . . . . . . . . . . . . .  D  ADDR  0085H  NOT USED
@@ -238,11 +197,9 @@ EXTI0. . . . . . . . . . . . . . . .  C  ADDR  0003H  NOT USED
 EXTI1. . . . . . . . . . . . . . . .  C  ADDR  0013H  NOT USED
 F0 . . . . . . . . . . . . . . . . .  B  ADDR  00D5H  NOT USED
 FE . . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
-HEADIDX. . . . . . . . . . . . . . .  D  ADDR  0032H
 IE . . . . . . . . . . . . . . . . .  D  ADDR  00A8H  NOT USED
 IE0. . . . . . . . . . . . . . . . .  B  ADDR  0089H  NOT USED
 IE1. . . . . . . . . . . . . . . . .  B  ADDR  008BH  NOT USED
-INNIT. . . . . . . . . . . . . . . .  C  ADDR  0002H
 INT0 . . . . . . . . . . . . . . . .  B  ADDR  00B2H  NOT USED
 INT1 . . . . . . . . . . . . . . . .  B  ADDR  00B3H  NOT USED
 IP . . . . . . . . . . . . . . . . .  D  ADDR  00B8H  NOT USED
@@ -256,13 +213,12 @@ IT1. . . . . . . . . . . . . . . . .  B  ADDR  008AH  NOT USED
 KBE. . . . . . . . . . . . . . . . .  D  ADDR  009DH  NOT USED
 KBF. . . . . . . . . . . . . . . . .  D  ADDR  009EH  NOT USED
 KBLS . . . . . . . . . . . . . . . .  D  ADDR  009CH  NOT USED
-MAIN . . . . . . . . . . . . . . . .  C  ADDR  007DH
-MOVEL. . . . . . . . . . . . . . . .  C  ADDR  0034H
+MOVEL. . . . . . . . . . . . . . . .  C  ADDR  0012H  NOT USED
 OSCCON . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 OV . . . . . . . . . . . . . . . . .  B  ADDR  00D2H  NOT USED
 P. . . . . . . . . . . . . . . . . .  B  ADDR  00D0H  NOT USED
-P0 . . . . . . . . . . . . . . . . .  D  ADDR  0080H
-P1 . . . . . . . . . . . . . . . . .  D  ADDR  0090H
+P0 . . . . . . . . . . . . . . . . .  D  ADDR  0080H  NOT USED
+P1 . . . . . . . . . . . . . . . . .  D  ADDR  0090H  NOT USED
 P1M1 . . . . . . . . . . . . . . . .  D  ADDR  00D4H  NOT USED
 P1M2 . . . . . . . . . . . . . . . .  D  ADDR  00E2H  NOT USED
 P2 . . . . . . . . . . . . . . . . .  D  ADDR  00A0H  NOT USED
@@ -273,12 +229,8 @@ P4 . . . . . . . . . . . . . . . . .  D  ADDR  00C0H  NOT USED
 P4M1 . . . . . . . . . . . . . . . .  D  ADDR  00D6H  NOT USED
 P4M2 . . . . . . . . . . . . . . . .  D  ADDR  00E4H  NOT USED
 P5 . . . . . . . . . . . . . . . . .  D  ADDR  00E8H  NOT USED
-PBX. . . . . . . . . . . . . . . . .  D  ADDR  0031H
-PBY. . . . . . . . . . . . . . . . .  D  ADDR  0030H
 PC . . . . . . . . . . . . . . . . .  B  ADDR  00BEH  NOT USED
 PCON . . . . . . . . . . . . . . . .  D  ADDR  0087H  NOT USED
-POWX . . . . . . . . . . . . . . . .  D  ADDR  0029H
-POWY . . . . . . . . . . . . . . . .  D  ADDR  0028H
 PPCL . . . . . . . . . . . . . . . .  B  ADDR  00BEH  NOT USED
 PS . . . . . . . . . . . . . . . . .  B  ADDR  00BCH  NOT USED
 PSL. . . . . . . . . . . . . . . . .  B  ADDR  00BCH  NOT USED
@@ -299,10 +251,7 @@ RCAP2L . . . . . . . . . . . . . . .  D  ADDR  00CAH  NOT USED
 RCLK . . . . . . . . . . . . . . . .  B  ADDR  00CDH  NOT USED
 RD . . . . . . . . . . . . . . . . .  B  ADDR  00B7H  NOT USED
 REN. . . . . . . . . . . . . . . . .  B  ADDR  009CH  NOT USED
-RENDER . . . . . . . . . . . . . . .  C  ADDR  0085H
-RENDERLOOP . . . . . . . . . . . . .  C  ADDR  008BH
 RESET. . . . . . . . . . . . . . . .  C  ADDR  0000H  NOT USED
-RETURN . . . . . . . . . . . . . . .  C  ADDR  00A6H  NOT USED
 RI . . . . . . . . . . . . . . . . .  B  ADDR  0098H  NOT USED
 RS0. . . . . . . . . . . . . . . . .  B  ADDR  00D3H  NOT USED
 RS1. . . . . . . . . . . . . . . . .  B  ADDR  00D4H  NOT USED
@@ -315,7 +264,7 @@ SADEN_0. . . . . . . . . . . . . . .  D  ADDR  00B9H  NOT USED
 SADEN_1. . . . . . . . . . . . . . .  D  ADDR  00BAH  NOT USED
 SBUF . . . . . . . . . . . . . . . .  D  ADDR  0099H  NOT USED
 SCON . . . . . . . . . . . . . . . .  D  ADDR  0098H  NOT USED
-SETPIXELFBUFFER. . . . . . . . . . .  C  ADDR  0022H
+SETPIXELFBUFFER. . . . . . . . . . .  C  ADDR  0000H
 SINT . . . . . . . . . . . . . . . .  C  ADDR  0023H  NOT USED
 SM0. . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
 SM1. . . . . . . . . . . . . . . . .  B  ADDR  009EH  NOT USED
@@ -327,12 +276,10 @@ SPDAT. . . . . . . . . . . . . . . .  D  ADDR  00C5H  NOT USED
 SPDR . . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 SPSR . . . . . . . . . . . . . . . .  D  ADDR  00AAH  NOT USED
 SPSTA. . . . . . . . . . . . . . . .  D  ADDR  00C4H  NOT USED
-STOP . . . . . . . . . . . . . . . .  C  ADDR  00A7H  NOT USED
 T0 . . . . . . . . . . . . . . . . .  B  ADDR  00B4H  NOT USED
 T1 . . . . . . . . . . . . . . . . .  B  ADDR  00B5H  NOT USED
 T2CON. . . . . . . . . . . . . . . .  D  ADDR  00C8H  NOT USED
 T2MOD. . . . . . . . . . . . . . . .  D  ADDR  00C9H  NOT USED
-TAILIDX. . . . . . . . . . . . . . .  D  ADDR  0033H
 TB8. . . . . . . . . . . . . . . . .  B  ADDR  009BH  NOT USED
 TCLK . . . . . . . . . . . . . . . .  B  ADDR  00CCH  NOT USED
 TCON . . . . . . . . . . . . . . . .  D  ADDR  0088H  NOT USED
@@ -358,11 +305,3 @@ WDTCON . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
 WDTPRG . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
 WDTRST . . . . . . . . . . . . . . .  D  ADDR  00A6H  NOT USED
 WR . . . . . . . . . . . . . . . . .  B  ADDR  00B6H  NOT USED
-ZE0. . . . . . . . . . . . . . . . .  D  ADDR  0020H  NOT USED
-ZE1. . . . . . . . . . . . . . . . .  D  ADDR  0021H  NOT USED
-ZE2. . . . . . . . . . . . . . . . .  D  ADDR  0022H  NOT USED
-ZE3. . . . . . . . . . . . . . . . .  D  ADDR  0023H
-ZE4. . . . . . . . . . . . . . . . .  D  ADDR  0024H
-ZE5. . . . . . . . . . . . . . . . .  D  ADDR  0025H  NOT USED
-ZE6. . . . . . . . . . . . . . . . .  D  ADDR  0026H  NOT USED
-ZE7. . . . . . . . . . . . . . . . .  D  ADDR  0027H  NOT USED
