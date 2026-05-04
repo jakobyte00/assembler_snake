@@ -72,5 +72,4 @@ INC A
 ANL A, #0FH     ; Wrap around 0-15
 MOV TailIdx, A
 
-LCALL Render
-SJMP Main
+RET

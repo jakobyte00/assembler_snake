@@ -10,7 +10,7 @@ $INCLUDE (render.asm)
 
 Innit:
 ;Reset input
-MOV P2, #070h
+MOV P2, #0F0h;#070h
 ;Draw initial snake
 MOV Ze3, #00Ch
 MOV Ze4, #004h
@@ -27,7 +27,7 @@ MOV TailIdx, #000h
 ;Set initial tick counter to 10
 MOV TimersToPass, #001h;#00Ah
 ;Set initial direction to left
-MOV DirecFacing, #001h
+;MOV DirecFacing, #001h
 ;Set TimerMode for Timer0 to 1
 MOV TMOD, #001h
 ;Set the hight and low bits (16 Bits therefore two registers) for timer0
@@ -65,24 +65,24 @@ LCALL MoveL
 SJMP End_IR
 TryRight1:
 CJNE A, #002H, TryUp1
-;LCALL MoveR
+LCALL MoveR
 SJMP End_IR
 TryUp1:
 CJNE A, #003H, TryDown1
-;LCALL MoveU
+LCALL MoveU
 SJMP End_IR
 TryDown1:
 CJNE A, #004H, End_IR
-;LCALL MoveD
+LCALL MoveD
 SJMP End_IR
 
 End_IR:
 ;Retun context from stack
+POP 01H
+POP 00H
+POP B
 POP PSW
 POP ACC
-POP B
-POP 00H
-POP 01H
 RETI
 
 Main:
