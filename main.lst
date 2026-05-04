@@ -1,162 +1,231 @@
 main                                                                                                                    PAGE 1
                          1     ORG 000H
-0000 020083              2     LJMP Innit
-                         3
-                 =1      4     $INCLUDE (definitions.asm)
-                 =1      5     ;Image row adresses (y):
-  0020           =1      6     Ze0 DATA 020H
-  0021           =1      7     Ze1 DATA 021H
-  0022           =1      8     Ze2 DATA 022H
-  0023           =1      9     Ze3 DATA 023H
-  0024           =1     10     Ze4 DATA 024H
-  0025           =1     11     Ze5 DATA 025H
-  0026           =1     12     Ze6 DATA 026H
-  0027           =1     13     Ze7 DATA 027H
-                 =1     14     ;Rendering buffer:
-  0028           =1     15     Powy DATA 028H
-  0029           =1     16     Powx DATA 029H
-                 =1     17     ;Pixel buffer (x|y):
-  0030           =1     18     Pby DATA 030H
-  0031           =1     19     Pbx DATA 031H
-                 =1     20     ;Snake haed and tail indices
-  0032           =1     21     HeadIdx DATA 032H
-  0033           =1     22     TailIdx DATA 033H
-                 =1     23     ;Snake pixels ring buffer
-                 =1     24     ;y-coordinates from 40H to 4FH
-                 =1     25     ;x-coordinates from 50H to 5FH
-                 =1     26     $INCLUDE (snake.asm)
-                 =1     27     SetPixelFBuffer:
-0003 A930        =1     28     MOV R1, Pby
-0005 E7          =1     29     MOV A, @R1
-0006 8531F0      =1     30     MOV B, Pbx
-0009 45F0        =1     31     ORL A, B
-000B F7          =1     32     MOV @R1, A
-000C 22          =1     33     RET
-                 =1     34
-                 =1     35     DelPixelFBuffer:
-000D E531        =1     36     MOV A, Pbx
-000F F4          =1     37     CPL A
-0010 A930        =1     38     MOV R1, Pby
-0012 57          =1     39     ANL A, @R1
-0013 F7          =1     40     MOV @R1, A
-0014 22          =1     41     RET
+0000 02008A              2     LJMP Innit
+                         3     ;Hardware timer interuppt
+                         4     ORG 000BH
+000B 0200C1              5     LJMP Timer0_IR
+                         6
+                 =1      7     $INCLUDE (definitions.asm)
+                 =1      8     ;Image row adresses (y):
+  0020           =1      9     Ze0 DATA 020H
+  0021           =1     10     Ze1 DATA 021H
+  0022           =1     11     Ze2 DATA 022H
+  0023           =1     12     Ze3 DATA 023H
+  0024           =1     13     Ze4 DATA 024H
+  0025           =1     14     Ze5 DATA 025H
+  0026           =1     15     Ze6 DATA 026H
+  0027           =1     16     Ze7 DATA 027H
+                 =1     17     ;Rendering buffer:
+  0028           =1     18     Powy DATA 028H
+  0029           =1     19     Powx DATA 029H
+                 =1     20     ;Pixel buffer (x|y):
+  0030           =1     21     Pby DATA 030H
+  0031           =1     22     Pbx DATA 031H
+                 =1     23     ;Snake haed and tail indices
+  0032           =1     24     HeadIdx DATA 032H
+  0033           =1     25     TailIdx DATA 033H
+                 =1     26     ;Snake pixels ring buffer
+                 =1     27     ;y-coordinates from 40H to 4FH
+                 =1     28     ;x-coordinates from 50H to 5FH
+                 =1     29     ;Timers that need to pass for the next game tick
+  0034           =1     30     TimersToPass DATA 034H
+                 =1     31     ;Direction the snake is currently facing at
+                 =1     32     ;#1-left,#2-right,#3-up,#4-down
+  0035           =1     33     DirecFacing DATA 035H
+                 =1     34     $INCLUDE (snake.asm)
+                 =1     35     SetPixelFBuffer:
+000E A930        =1     36     MOV R1, Pby
+0010 E7          =1     37     MOV A, @R1
+0011 8531F0      =1     38     MOV B, Pbx
+0014 45F0        =1     39     ORL A, B
+0016 F7          =1     40     MOV @R1, A
+0017 22          =1     41     RET
                  =1     42
-                 =1     43     MoveL:
-                 =1     44     ;Read current head x and y
-0015 7450        =1     45     MOV A, #50H
-0017 2532        =1     46     ADD A, HeadIdx
-0019 F8          =1     47     MOV R0, A
-001A E6          =1     48     MOV A, @R0
-001B 75F002      =1     49     MOV B, #002h
-001E A4          =1     50     MUL AB
-001F F531        =1     51     MOV Pbx, A
-                 =1     52
-0021 7440        =1     53     MOV A, #40H
-0023 2532        =1     54     ADD A, HeadIdx
-0025 F8          =1     55     MOV R0, A
-0026 E6          =1     56     MOV A, @R0
-0027 F530        =1     57     MOV Pby, A
-                 =1     58
-                 =1     59     ;Move head pointer
-0029 E532        =1     60     MOV A, HeadIdx
-002B 04          =1     61     INC A
-002C 540F        =1     62     ANL A, #0FH
-002E F532        =1     63     MOV HeadIdx, A
-                 =1     64
-                 =1     65     ;Add new head to screen
-0030 7450        =1     66     MOV A, #50H
-0032 2532        =1     67     ADD A, HeadIdx
-0034 F8          =1     68     MOV R0, A
-0035 E531        =1     69     MOV A, Pbx
-0037 F6          =1     70     MOV @R0, A
-                 =1     71
-0038 7440        =1     72     MOV A, #40H
-003A 2532        =1     73     ADD A, HeadIdx
-003C F8          =1     74     MOV R0, A
-003D E530        =1     75     MOV A, Pby
-003F F6          =1     76     MOV @R0, A
-                 =1     77
-0040 120003      =1     78     LCALL SetPixelFBuffer
+                 =1     43     DelPixelFBuffer:
+0018 E531        =1     44     MOV A, Pbx
+001A F4          =1     45     CPL A
+001B A930        =1     46     MOV R1, Pby
+001D 57          =1     47     ANL A, @R1
+001E F7          =1     48     MOV @R1, A
+001F 22          =1     49     RET
+                 =1     50
+                 =1     51     MoveL:
+                 =1     52     ;Read current head x and y
+0020 7450        =1     53     MOV A, #50H
+0022 2532        =1     54     ADD A, HeadIdx
+0024 F8          =1     55     MOV R0, A
+0025 E6          =1     56     MOV A, @R0
+0026 75F002      =1     57     MOV B, #002h
+0029 A4          =1     58     MUL AB
+002A F531        =1     59     MOV Pbx, A
+                 =1     60
+002C 7440        =1     61     MOV A, #40H
+002E 2532        =1     62     ADD A, HeadIdx
+0030 F8          =1     63     MOV R0, A
+0031 E6          =1     64     MOV A, @R0
+0032 F530        =1     65     MOV Pby, A
+                 =1     66
+                 =1     67     ;Move head pointer
+0034 E532        =1     68     MOV A, HeadIdx
+0036 04          =1     69     INC A
+0037 540F        =1     70     ANL A, #0FH
+0039 F532        =1     71     MOV HeadIdx, A
+                 =1     72
+                 =1     73     ;Add new head to screen
+003B 7450        =1     74     MOV A, #50H
+003D 2532        =1     75     ADD A, HeadIdx
+003F F8          =1     76     MOV R0, A
+0040 E531        =1     77     MOV A, Pbx
+0042 F6          =1     78     MOV @R0, A
                  =1     79
-                 =1     80     ;Delete old tail from screen
-0043 7450        =1     81     MOV A, #50H
-0045 2533        =1     82     ADD A, TailIdx
-0047 F8          =1     83     MOV R0, A
-0048 E6          =1     84     MOV A, @R0
-0049 F531        =1     85     MOV Pbx, A
-                 =1     86
-004B 7440        =1     87     MOV A, #40H
-004D 2533        =1     88     ADD A, TailIdx
-004F F8          =1     89     MOV R0, A
-0050 E6          =1     90     MOV A, @R0
-0051 F530        =1     91     MOV Pby, A
-                 =1     92
-0053 12000D      =1     93     LCALL DelPixelFBuffer
+0043 7440        =1     80     MOV A, #40H
+0045 2532        =1     81     ADD A, HeadIdx
+0047 F8          =1     82     MOV R0, A
+0048 E530        =1     83     MOV A, Pby
+004A F6          =1     84     MOV @R0, A
+                 =1     85
+004B 12000E      =1     86     LCALL SetPixelFBuffer
+                 =1     87
+                 =1     88     ;Delete old tail from screen
+004E 7450        =1     89     MOV A, #50H
+0050 2533        =1     90     ADD A, TailIdx
+0052 F8          =1     91     MOV R0, A
+0053 E6          =1     92     MOV A, @R0
+0054 F531        =1     93     MOV Pbx, A
                  =1     94
-                 =1     95     ;Move tail pointer
-0056 E533        =1     96     MOV A, TailIdx
-0058 04          =1     97     INC A
-0059 540F        =1     98     ANL A, #0FH     ; Wrap around 0-15
-005B F533        =1     99     MOV TailIdx, A
+0056 7440        =1     95     MOV A, #40H
+0058 2533        =1     96     ADD A, TailIdx
+005A F8          =1     97     MOV R0, A
+005B E6          =1     98     MOV A, @R0
+005C F530        =1     99     MOV Pby, A
                  =1    100
-005D 120062      =1    101     LCALL Render
-0060 8044        =1    102     SJMP Main
-                 =1    103     $INCLUDE (render.asm)
-                 =1    104     Render:
-0062 752920      =1    105         MOV Powx, #020H
-0065 752880      =1    106         MOV Powy, #080H
-                 =1    107     RenderLoop:
-0068 A829        =1    108         MOV R0, Powx
-006A 759000      =1    109         MOV P1, #000H
-006D 8680        =1    110         MOV P0, @R0
-006F 852890      =1    111         MOV P1, Powy
-0072 08          =1    112         INC R0
-0073 8829        =1    113         MOV Powx, R0
-0075 E528        =1    114         MOV A, Powy
-0077 75F002      =1    115         MOV B, #002H
-007A 84          =1    116         DIV AB
-007B F528        =1    117         MOV Powy, A
-007D E529        =1    118         MOV A, Powx
-007F B428E6      =1    119         CJNE A, #028H, RenderLoop
-0082 22          =1    120         RET
-                       121
-                       122     Innit:
-                       123     ;Reset input
-0083 75A070            124     MOV P2, #070h
-                       125     ;Draw initial snake
-0086 75230C            126     MOV Ze3, #00Ch
-0089 752404            127     MOV Ze4, #004h
-                       128     ;Save initial snake to ring buffer
-008C 754223            129     MOV 42H, #023h
-008F 755208            130     MOV 52H, #008h
-0092 754123            131     MOV 41H, #023h
-0095 755104            132     MOV 51H, #004h
-0098 754024            133     MOV 40H, #024h
-009B 755004            134     MOV 50H, #004h
-                       135     ;Save initial indices
-009E 753202            136     MOV HeadIdx, #002h
-00A1 753300            137     MOV TailIdx, #000h
-                       138
-00A4 8000              139     SJMP Main
-                       140
-                       141     Main:
-00A6 120062            142     LCALL Render
-00A9 E5A0              143     MOV A, P2
-00AB B47003            144     CJNE A, #070H, TryRight
-00AE 020015            145     LJMP MoveL
-                       146     TryRight:
-00B1 B4E000            147     CJNE A, #0E0H, TryUp
-                       148     ;LJMP MoveR
-                       149     TryUp:
-00B4 B4B000            150     CJNE A, #0B0H, TryDown
-                       151     ;LJMP MoveU
-                       152     TryDown:
-00B7 B4D0EC            153     CJNE A, #0D0H, Main
-                       154     ;LJMP MoveD
-                       155
-                       156     Stop:
-00BA 80FE              157     SJMP $
-                       158     END
+005E 120018      =1    101     LCALL DelPixelFBuffer
+                 =1    102
+                 =1    103     ;Move tail pointer
+0061 E533        =1    104     MOV A, TailIdx
+0063 04          =1    105     INC A
+0064 540F        =1    106     ANL A, #0FH     ; Wrap around 0-15
+0066 F533        =1    107     MOV TailIdx, A
+                 =1    108
+0068 22          =1    109     RET
+                 =1    110     $INCLUDE (render.asm)
+                 =1    111     Render:
+0069 752920      =1    112         MOV Powx, #020H
+006C 752880      =1    113         MOV Powy, #080H
+                 =1    114     RenderLoop:
+006F A829        =1    115         MOV R0, Powx
+0071 759000      =1    116         MOV P1, #000H
+0074 8680        =1    117         MOV P0, @R0
+0076 852890      =1    118         MOV P1, Powy
+0079 08          =1    119         INC R0
+007A 8829        =1    120         MOV Powx, R0
+007C E528        =1    121         MOV A, Powy
+007E 75F002      =1    122         MOV B, #002H
+0081 84          =1    123         DIV AB
+0082 F528        =1    124         MOV Powy, A
+0084 E529        =1    125         MOV A, Powx
+0086 B428E6      =1    126         CJNE A, #028H, RenderLoop
+0089 22          =1    127         RET
+                       128
+                       129     Innit:
+                       130     ;Reset input
+008A 75A070            131     MOV P2, #070h
+                       132     ;Draw initial snake
+008D 75230C            133     MOV Ze3, #00Ch
+0090 752404            134     MOV Ze4, #004h
+                       135     ;Save initial snake to ring buffer
+0093 754223            136     MOV 42H, #023h
+0096 755208            137     MOV 52H, #008h
+0099 754123            138     MOV 41H, #023h
+009C 755104            139     MOV 51H, #004h
+009F 754024            140     MOV 40H, #024h
+00A2 755004            141     MOV 50H, #004h
+                       142     ;Save initial indices
+00A5 753202            143     MOV HeadIdx, #002h
+00A8 753300            144     MOV TailIdx, #000h
+                       145     ;Set initial tick counter to 10
+00AB 753401            146     MOV TimersToPass, #001h;#00Ah
+                       147     ;Set initial direction to left
+00AE 753501            148     MOV DirecFacing, #001h
+                       149     ;Set TimerMode for Timer0 to 1
+00B1 758901            150     MOV TMOD, #001h
+                       151     ;Set the hight and low bits (16 Bits therefore two registers) for timer0
+                       152     ;One tick is 1 micro second since 500 ms (intended duration does not fit into 16 bit)
+                       153     ;The timer will go down 10 times before a tick. Therfore one countdown is 50,000 mirco secs
+                       154     ;The 16 bits can hold 65,535 numbers, so for an overflow 65,536 is needed
+                       155     ;--> 50,000 ticks to every overflow 65,536-50,000=15,536 as initial value
+00B4 758CF8            156     MOV TH0, #0F8H;#03CH
+00B7 758A00            157     MOV TL0, #000H;#03CH
+                       158     ;Enable interrupts globally and the timer interrupts
+00BA 75A882            159     MOV IE, #82H
+                       160     ;Start timer0
+00BD D28C              161     SETB TR0
+                       162
+00BF 803A              163     SJMP Main
+                       164
+                       165     Timer0_IR:
+                       166     ;Save context to stack
+00C1 C0E0              167     PUSH ACC
+00C3 C0D0              168     PUSH PSW
+00C5 C0F0              169     PUSH B
+00C7 C000              170     PUSH 00H
+00C9 C001              171     PUSH 01H
+                       172     ;Reload timer values
+00CB 758CF8            173     MOV TH0, #0F8H
+00CE 758A00            174     MOV TL0, #000H
+                       175     ;Decrease timer counter
+00D1 D5341C            176     DJNZ TimersToPass, End_IR
+                       177     ;If 0 timers left, reset to 10 and execute movement
+00D4 753401            178     MOV TimersToPass, #001h;#00Ah
+                       179     ;Check facing direction and execute movement in that direction
+00D7 E535              180     MOV A, DirecFacing
+00D9 B40105            181     CJNE A, #001H, TryRight1
+00DC 120020            182     LCALL MoveL
+00DF 800F              183     SJMP End_IR
+                       184     TryRight1:
+00E1 B40202            185     CJNE A, #002H, TryUp1
+                       186     ;LCALL MoveR
+00E4 800A              187     SJMP End_IR
+                       188     TryUp1:
+00E6 B40302            189     CJNE A, #003H, TryDown1
+                       190     ;LCALL MoveU
+00E9 8005              191     SJMP End_IR
+                       192     TryDown1:
+00EB B40402            193     CJNE A, #004H, End_IR
+                       194     ;LCALL MoveD
+00EE 8000              195     SJMP End_IR
+                       196
+                       197     End_IR:
+                       198     ;Retun context from stack
+00F0 D0D0              199     POP PSW
+00F2 D0E0              200     POP ACC
+00F4 D0F0              201     POP B
+00F6 D000              202     POP 00H
+00F8 D001              203     POP 01H
+00FA 32                204     RETI
+                       205
+                       206     Main:
+00FB 120069            207     LCALL Render
+00FE E5A0              208     MOV A, P2
+0100 B47005            209     CJNE A, #070H, TryRight
+0103 753501            210     MOV DirecFacing, #001h
+0106 80F3              211     SJMP Main
+                       212     TryRight:
+0108 B4E005            213     CJNE A, #0E0H, TryUp
+010B 753502            214     MOV DirecFacing, #002h
+010E 80EB              215     SJMP Main
+                       216     TryUp:
+0110 B4B005            217     CJNE A, #0B0H, TryDown
+0113 753503            218     MOV DirecFacing, #003h
+0116 80E3              219     SJMP Main
+                       220     TryDown:
+0118 B4D0E0            221     CJNE A, #0D0H, Main
+011B 753504            222     MOV DirecFacing, #004h
+011E 80DB              223     SJMP Main
+                       224
+                       225     Stop:
+0120 80FE              226     SJMP $
+                       227     END
 ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
 
@@ -164,7 +233,7 @@ SYMBOL TABLE:
 ??MCU_8051_IDE . . . . . . . . . . .  N  NUMB  8051H  NOT USED
 ??VERSION. . . . . . . . . . . . . .  N  NUMB  0149H  NOT USED
 AC . . . . . . . . . . . . . . . . .  B  ADDR  00D6H  NOT USED
-ACC. . . . . . . . . . . . . . . . .  D  ADDR  00E0H  NOT USED
+ACC. . . . . . . . . . . . . . . . .  D  ADDR  00E0H
 ACSR . . . . . . . . . . . . . . . .  D  ADDR  0097H  NOT USED
 ADCF . . . . . . . . . . . . . . . .  D  ADDR  00F6H  NOT USED
 ADCLK. . . . . . . . . . . . . . . .  D  ADDR  00F2H  NOT USED
@@ -214,7 +283,8 @@ CPRL2. . . . . . . . . . . . . . . .  B  ADDR  00C8H  NOT USED
 CR . . . . . . . . . . . . . . . . .  B  ADDR  00DEH  NOT USED
 CT2. . . . . . . . . . . . . . . . .  B  ADDR  00C9H  NOT USED
 CY . . . . . . . . . . . . . . . . .  B  ADDR  00D7H  NOT USED
-DELPIXELFBUFFER. . . . . . . . . . .  C  ADDR  000DH
+DELPIXELFBUFFER. . . . . . . . . . .  C  ADDR  0018H
+DIRECFACING. . . . . . . . . . . . .  D  ADDR  0035H
 DP0H . . . . . . . . . . . . . . . .  D  ADDR  0083H  NOT USED
 DP0L . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
 DP1H . . . . . . . . . . . . . . . .  D  ADDR  0085H  NOT USED
@@ -224,6 +294,7 @@ DPL. . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
 EA . . . . . . . . . . . . . . . . .  B  ADDR  00AFH  NOT USED
 EC . . . . . . . . . . . . . . . . .  B  ADDR  00AEH  NOT USED
 EECON. . . . . . . . . . . . . . . .  D  ADDR  0096H  NOT USED
+END_IR . . . . . . . . . . . . . . .  C  ADDR  00F0H
 ES . . . . . . . . . . . . . . . . .  B  ADDR  00ACH  NOT USED
 ET0. . . . . . . . . . . . . . . . .  B  ADDR  00A9H  NOT USED
 ET1. . . . . . . . . . . . . . . . .  B  ADDR  00ABH  NOT USED
@@ -237,10 +308,10 @@ EXTI1. . . . . . . . . . . . . . . .  C  ADDR  0013H  NOT USED
 F0 . . . . . . . . . . . . . . . . .  B  ADDR  00D5H  NOT USED
 FE . . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
 HEADIDX. . . . . . . . . . . . . . .  D  ADDR  0032H
-IE . . . . . . . . . . . . . . . . .  D  ADDR  00A8H  NOT USED
+IE . . . . . . . . . . . . . . . . .  D  ADDR  00A8H
 IE0. . . . . . . . . . . . . . . . .  B  ADDR  0089H  NOT USED
 IE1. . . . . . . . . . . . . . . . .  B  ADDR  008BH  NOT USED
-INNIT. . . . . . . . . . . . . . . .  C  ADDR  0083H
+INNIT. . . . . . . . . . . . . . . .  C  ADDR  008AH
 INT0 . . . . . . . . . . . . . . . .  B  ADDR  00B2H  NOT USED
 INT1 . . . . . . . . . . . . . . . .  B  ADDR  00B3H  NOT USED
 IP . . . . . . . . . . . . . . . . .  D  ADDR  00B8H  NOT USED
@@ -254,8 +325,8 @@ IT1. . . . . . . . . . . . . . . . .  B  ADDR  008AH  NOT USED
 KBE. . . . . . . . . . . . . . . . .  D  ADDR  009DH  NOT USED
 KBF. . . . . . . . . . . . . . . . .  D  ADDR  009EH  NOT USED
 KBLS . . . . . . . . . . . . . . . .  D  ADDR  009CH  NOT USED
-MAIN . . . . . . . . . . . . . . . .  C  ADDR  00A6H
-MOVEL. . . . . . . . . . . . . . . .  C  ADDR  0015H
+MAIN . . . . . . . . . . . . . . . .  C  ADDR  00FBH
+MOVEL. . . . . . . . . . . . . . . .  C  ADDR  0020H
 OSCCON . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 OV . . . . . . . . . . . . . . . . .  B  ADDR  00D2H  NOT USED
 P. . . . . . . . . . . . . . . . . .  B  ADDR  00D0H  NOT USED
@@ -280,7 +351,7 @@ POWY . . . . . . . . . . . . . . . .  D  ADDR  0028H
 PPCL . . . . . . . . . . . . . . . .  B  ADDR  00BEH  NOT USED
 PS . . . . . . . . . . . . . . . . .  B  ADDR  00BCH  NOT USED
 PSL. . . . . . . . . . . . . . . . .  B  ADDR  00BCH  NOT USED
-PSW. . . . . . . . . . . . . . . . .  D  ADDR  00D0H  NOT USED
+PSW. . . . . . . . . . . . . . . . .  D  ADDR  00D0H
 PT0. . . . . . . . . . . . . . . . .  B  ADDR  00B9H  NOT USED
 PT0L . . . . . . . . . . . . . . . .  B  ADDR  00B9H  NOT USED
 PT1. . . . . . . . . . . . . . . . .  B  ADDR  00BBH  NOT USED
@@ -297,8 +368,8 @@ RCAP2L . . . . . . . . . . . . . . .  D  ADDR  00CAH  NOT USED
 RCLK . . . . . . . . . . . . . . . .  B  ADDR  00CDH  NOT USED
 RD . . . . . . . . . . . . . . . . .  B  ADDR  00B7H  NOT USED
 REN. . . . . . . . . . . . . . . . .  B  ADDR  009CH  NOT USED
-RENDER . . . . . . . . . . . . . . .  C  ADDR  0062H
-RENDERLOOP . . . . . . . . . . . . .  C  ADDR  0068H
+RENDER . . . . . . . . . . . . . . .  C  ADDR  0069H
+RENDERLOOP . . . . . . . . . . . . .  C  ADDR  006FH
 RESET. . . . . . . . . . . . . . . .  C  ADDR  0000H  NOT USED
 RI . . . . . . . . . . . . . . . . .  B  ADDR  0098H  NOT USED
 RS0. . . . . . . . . . . . . . . . .  B  ADDR  00D3H  NOT USED
@@ -312,7 +383,7 @@ SADEN_0. . . . . . . . . . . . . . .  D  ADDR  00B9H  NOT USED
 SADEN_1. . . . . . . . . . . . . . .  D  ADDR  00BAH  NOT USED
 SBUF . . . . . . . . . . . . . . . .  D  ADDR  0099H  NOT USED
 SCON . . . . . . . . . . . . . . . .  D  ADDR  0098H  NOT USED
-SETPIXELFBUFFER. . . . . . . . . . .  C  ADDR  0003H
+SETPIXELFBUFFER. . . . . . . . . . .  C  ADDR  000EH
 SINT . . . . . . . . . . . . . . . .  C  ADDR  0023H  NOT USED
 SM0. . . . . . . . . . . . . . . . .  B  ADDR  009FH  NOT USED
 SM1. . . . . . . . . . . . . . . . .  B  ADDR  009EH  NOT USED
@@ -324,7 +395,7 @@ SPDAT. . . . . . . . . . . . . . . .  D  ADDR  00C5H  NOT USED
 SPDR . . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 SPSR . . . . . . . . . . . . . . . .  D  ADDR  00AAH  NOT USED
 SPSTA. . . . . . . . . . . . . . . .  D  ADDR  00C4H  NOT USED
-STOP . . . . . . . . . . . . . . . .  C  ADDR  00BAH  NOT USED
+STOP . . . . . . . . . . . . . . . .  C  ADDR  0120H  NOT USED
 T0 . . . . . . . . . . . . . . . . .  B  ADDR  00B4H  NOT USED
 T1 . . . . . . . . . . . . . . . . .  B  ADDR  00B5H  NOT USED
 T2CON. . . . . . . . . . . . . . . .  D  ADDR  00C8H  NOT USED
@@ -336,23 +407,28 @@ TCON . . . . . . . . . . . . . . . .  D  ADDR  0088H  NOT USED
 TF0. . . . . . . . . . . . . . . . .  B  ADDR  008DH  NOT USED
 TF1. . . . . . . . . . . . . . . . .  B  ADDR  008FH  NOT USED
 TF2. . . . . . . . . . . . . . . . .  B  ADDR  00CFH  NOT USED
-TH0. . . . . . . . . . . . . . . . .  D  ADDR  008CH  NOT USED
+TH0. . . . . . . . . . . . . . . . .  D  ADDR  008CH
 TH1. . . . . . . . . . . . . . . . .  D  ADDR  008DH  NOT USED
 TH2. . . . . . . . . . . . . . . . .  D  ADDR  00CDH  NOT USED
 TI . . . . . . . . . . . . . . . . .  B  ADDR  0099H  NOT USED
 TIMER0 . . . . . . . . . . . . . . .  C  ADDR  000BH  NOT USED
+TIMER0_IR. . . . . . . . . . . . . .  C  ADDR  00C1H
 TIMER1 . . . . . . . . . . . . . . .  C  ADDR  001BH  NOT USED
 TIMER2 . . . . . . . . . . . . . . .  C  ADDR  002BH  NOT USED
-TL0. . . . . . . . . . . . . . . . .  D  ADDR  008AH  NOT USED
+TIMERSTOPASS . . . . . . . . . . . .  D  ADDR  0034H
+TL0. . . . . . . . . . . . . . . . .  D  ADDR  008AH
 TL1. . . . . . . . . . . . . . . . .  D  ADDR  008BH  NOT USED
 TL2. . . . . . . . . . . . . . . . .  D  ADDR  00CCH  NOT USED
-TMOD . . . . . . . . . . . . . . . .  D  ADDR  0089H  NOT USED
-TR0. . . . . . . . . . . . . . . . .  B  ADDR  008CH  NOT USED
+TMOD . . . . . . . . . . . . . . . .  D  ADDR  0089H
+TR0. . . . . . . . . . . . . . . . .  B  ADDR  008CH
 TR1. . . . . . . . . . . . . . . . .  B  ADDR  008EH  NOT USED
 TR2. . . . . . . . . . . . . . . . .  B  ADDR  00CAH  NOT USED
-TRYDOWN. . . . . . . . . . . . . . .  C  ADDR  00B7H
-TRYRIGHT . . . . . . . . . . . . . .  C  ADDR  00B1H
-TRYUP. . . . . . . . . . . . . . . .  C  ADDR  00B4H
+TRYDOWN. . . . . . . . . . . . . . .  C  ADDR  0118H
+TRYDOWN1 . . . . . . . . . . . . . .  C  ADDR  00EBH
+TRYRIGHT . . . . . . . . . . . . . .  C  ADDR  0108H
+TRYRIGHT1. . . . . . . . . . . . . .  C  ADDR  00E1H
+TRYUP. . . . . . . . . . . . . . . .  C  ADDR  0110H
+TRYUP1 . . . . . . . . . . . . . . .  C  ADDR  00E6H
 TXD. . . . . . . . . . . . . . . . .  B  ADDR  00B1H  NOT USED
 WDTCON . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
 WDTPRG . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED

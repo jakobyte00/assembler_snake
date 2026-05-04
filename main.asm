@@ -1,5 +1,8 @@
 ORG 000H
 LJMP Innit
+;Hardware timer interuppt
+ORG 000BH
+LJMP Timer0_IR
 
 $INCLUDE (definitions.asm)
 $INCLUDE (snake.asm)
@@ -21,23 +24,85 @@ MOV 50H, #004h
 ;Save initial indices
 MOV HeadIdx, #002h
 MOV TailIdx, #000h
+;Set initial tick counter to 10
+MOV TimersToPass, #001h;#00Ah
+;Set initial direction to left
+MOV DirecFacing, #001h
+;Set TimerMode for Timer0 to 1
+MOV TMOD, #001h
+;Set the hight and low bits (16 Bits therefore two registers) for timer0
+;One tick is 1 micro second since 500 ms (intended duration does not fit into 16 bit)
+;The timer will go down 10 times before a tick. Therfore one countdown is 50,000 mirco secs
+;The 16 bits can hold 65,535 numbers, so for an overflow 65,536 is needed
+;--> 50,000 ticks to every overflow 65,536-50,000=15,536 as initial value
+MOV TH0, #0F8H;#03CH
+MOV TL0, #000H;#03CH
+;Enable interrupts globally and the timer interrupts
+MOV IE, #82H
+;Start timer0
+SETB TR0
 
 SJMP Main
+
+Timer0_IR:
+;Save context to stack
+PUSH ACC
+PUSH PSW
+PUSH B
+PUSH 00H
+PUSH 01H
+;Reload timer values
+MOV TH0, #0F8H
+MOV TL0, #000H
+;Decrease timer counter
+DJNZ TimersToPass, End_IR
+;If 0 timers left, reset to 10 and execute movement
+MOV TimersToPass, #001h;#00Ah
+;Check facing direction and execute movement in that direction
+MOV A, DirecFacing
+CJNE A, #001H, TryRight1
+LCALL MoveL
+SJMP End_IR
+TryRight1:
+CJNE A, #002H, TryUp1
+;LCALL MoveR
+SJMP End_IR
+TryUp1:
+CJNE A, #003H, TryDown1
+;LCALL MoveU
+SJMP End_IR
+TryDown1:
+CJNE A, #004H, End_IR
+;LCALL MoveD
+SJMP End_IR
+
+End_IR:
+;Retun context from stack
+POP PSW
+POP ACC
+POP B
+POP 00H
+POP 01H
+RETI
 
 Main:
 LCALL Render
 MOV A, P2
 CJNE A, #070H, TryRight
-LJMP MoveL
+MOV DirecFacing, #001h
+SJMP Main
 TryRight:
 CJNE A, #0E0H, TryUp
-;LJMP MoveR
+MOV DirecFacing, #002h
+SJMP Main
 TryUp:
 CJNE A, #0B0H, TryDown
-;LJMP MoveU
+MOV DirecFacing, #003h
+SJMP Main
 TryDown:
 CJNE A, #0D0H, Main
-;LJMP MoveD
+MOV DirecFacing, #004h
+SJMP Main
 
 Stop:
 SJMP $
