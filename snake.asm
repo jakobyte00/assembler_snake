@@ -229,6 +229,24 @@ MOV @R0, A
 
 LCALL SetPixelFBuffer
 
+;Check if head at food location
+MOV A, Pbx;
+CJNE A, FoodX, skipEating
+;if X coords don't match skip to tail deletion
+
+MOV A, Pby;
+CJNE A, FoodY, skipEating
+;if Y coords don't match skip to tail deletion
+
+;eat food logic
+;generate new random coordinate
+
+;change food location
+
+;skip tail deletion
+RET
+
+skipEating:
 ;Delete old tail from screen
 MOV A, #50H
 ADD A, TailIdx

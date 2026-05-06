@@ -24,3 +24,6 @@ TimersToPass DATA 034H
 ;Direction the snake is currently facing at
 ;#1-left,#2-right,#3-up,#4-down
 DirecFacing DATA 035H
+;Food location adresses
+FoodY DATA 070H; ROW
+FoodX DATA 071H; COLUMN
