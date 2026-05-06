@@ -340,7 +340,7 @@ main                                                                            
                        339     ;Start timer0
 018F D28C              340     SETB TR0
                        341
-0191 803A              342     SJMP Main
+0191 8043              342     SJMP Main
                        343
                        344     Timer0_IR:
                        345     ;Save context to stack
@@ -353,57 +353,57 @@ main                                                                            
 019D 758CF8            352     MOV TH0, #0F8H
 01A0 758A00            353     MOV TL0, #000H
                        354     ;Decrease timer counter
-01A3 D5341C            355     DJNZ TimersToPass, End_IR
+01A3 D53425            355     DJNZ TimersToPass, End_IR
                        356     ;If 0 timers left, reset to 10 and execute movement
 01A6 753401            357     MOV TimersToPass, #001h;#00Ah
                        358     ;Check facing direction and execute movement in that direction
 01A9 E535              359     MOV A, DirecFacing
 01AB B40105            360     CJNE A, #001H, TryRight1
 01AE 120020            361     LCALL MoveL
-01B1 800F              362     SJMP End_IR
+01B1 8018              362     SJMP End_IR
                        363     TryRight1:
-01B3 B40202            364     CJNE A, #002H, TryUp1
-                       365     ;LCALL MoveR
-01B6 800A              366     SJMP End_IR
+01B3 B40205            364     CJNE A, #002H, TryUp1
+01B6 120069            365     LCALL MoveR
+01B9 8010              366     SJMP End_IR
                        367     TryUp1:
-01B8 B40302            368     CJNE A, #003H, TryDown1
-                       369     ;LCALL MoveU
-01BB 8005              370     SJMP End_IR
+01BB B40305            368     CJNE A, #003H, TryDown1
+01BE 1200B2            369     LCALL MoveU
+01C1 8008              370     SJMP End_IR
                        371     TryDown1:
-01BD B40402            372     CJNE A, #004H, End_IR
-                       373     ;LCALL MoveD
-01C0 8000              374     SJMP End_IR
+01C3 B40405            372     CJNE A, #004H, End_IR
+01C6 1200F8            373     LCALL MoveD
+01C9 8000              374     SJMP End_IR
                        375
                        376     End_IR:
                        377     ;Retun context from stack
-01C2 D001              378     POP 01H
-01C4 D000              379     POP 00H
-01C6 D0F0              380     POP B
-01C8 D0D0              381     POP PSW
-01CA D0E0              382     POP ACC
-01CC 32                383     RETI
+01CB D001              378     POP 01H
+01CD D000              379     POP 00H
+01CF D0F0              380     POP B
+01D1 D0D0              381     POP PSW
+01D3 D0E0              382     POP ACC
+01D5 32                383     RETI
                        384
                        385     Main:
-01CD 12013E            386     LCALL Render
-01D0 E5A0              387     MOV A, P2
-01D2 B47005            388     CJNE A, #070H, TryRight
-01D5 753501            389     MOV DirecFacing, #001h
-01D8 80F3              390     SJMP Main
+01D6 12013E            386     LCALL Render
+01D9 E5A0              387     MOV A, P2
+01DB B47005            388     CJNE A, #070H, TryRight
+01DE 753501            389     MOV DirecFacing, #001h
+01E1 80F3              390     SJMP Main
                        391     TryRight:
-01DA B4E005            392     CJNE A, #0E0H, TryUp
-01DD 753502            393     MOV DirecFacing, #002h
-01E0 80EB              394     SJMP Main
+01E3 B4E005            392     CJNE A, #0E0H, TryUp
+01E6 753502            393     MOV DirecFacing, #002h
+01E9 80EB              394     SJMP Main
                        395     TryUp:
-01E2 B4B005            396     CJNE A, #0B0H, TryDown
-01E5 753503            397     MOV DirecFacing, #003h
-01E8 80E3              398     SJMP Main
+01EB B4B005            396     CJNE A, #0B0H, TryDown
+01EE 753503            397     MOV DirecFacing, #003h
+01F1 80E3              398     SJMP Main
                        399     TryDown:
-01EA B4D0E0            400     CJNE A, #0D0H, Main
-01ED 753504            401     MOV DirecFacing, #004h
-01F0 80DB              402     SJMP Main
+01F3 B4D0E0            400     CJNE A, #0D0H, Main
+01F6 753504            401     MOV DirecFacing, #004h
+01F9 80DB              402     SJMP Main
                        403
                        404     Stop:
-01F2 80FE              405     SJMP $
+01FB 80FE              405     SJMP $
                        406     END
 ASSEMBLY COMPLETE, NO ERRORS FOUND, NO WARNINGS
 
@@ -473,7 +473,7 @@ DPL. . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
 EA . . . . . . . . . . . . . . . . .  B  ADDR  00AFH  NOT USED
 EC . . . . . . . . . . . . . . . . .  B  ADDR  00AEH  NOT USED
 EECON. . . . . . . . . . . . . . . .  D  ADDR  0096H  NOT USED
-END_IR . . . . . . . . . . . . . . .  C  ADDR  01C2H
+END_IR . . . . . . . . . . . . . . .  C  ADDR  01CBH
 ES . . . . . . . . . . . . . . . . .  B  ADDR  00ACH  NOT USED
 ET0. . . . . . . . . . . . . . . . .  B  ADDR  00A9H  NOT USED
 ET1. . . . . . . . . . . . . . . . .  B  ADDR  00ABH  NOT USED
@@ -504,11 +504,11 @@ IT1. . . . . . . . . . . . . . . . .  B  ADDR  008AH  NOT USED
 KBE. . . . . . . . . . . . . . . . .  D  ADDR  009DH  NOT USED
 KBF. . . . . . . . . . . . . . . . .  D  ADDR  009EH  NOT USED
 KBLS . . . . . . . . . . . . . . . .  D  ADDR  009CH  NOT USED
-MAIN . . . . . . . . . . . . . . . .  C  ADDR  01CDH
-MOVED. . . . . . . . . . . . . . . .  C  ADDR  00F8H  NOT USED
+MAIN . . . . . . . . . . . . . . . .  C  ADDR  01D6H
+MOVED. . . . . . . . . . . . . . . .  C  ADDR  00F8H
 MOVEL. . . . . . . . . . . . . . . .  C  ADDR  0020H
-MOVER. . . . . . . . . . . . . . . .  C  ADDR  0069H  NOT USED
-MOVEU. . . . . . . . . . . . . . . .  C  ADDR  00B2H  NOT USED
+MOVER. . . . . . . . . . . . . . . .  C  ADDR  0069H
+MOVEU. . . . . . . . . . . . . . . .  C  ADDR  00B2H
 OSCCON . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 OV . . . . . . . . . . . . . . . . .  B  ADDR  00D2H  NOT USED
 P. . . . . . . . . . . . . . . . . .  B  ADDR  00D0H  NOT USED
@@ -577,7 +577,7 @@ SPDAT. . . . . . . . . . . . . . . .  D  ADDR  00C5H  NOT USED
 SPDR . . . . . . . . . . . . . . . .  D  ADDR  0086H  NOT USED
 SPSR . . . . . . . . . . . . . . . .  D  ADDR  00AAH  NOT USED
 SPSTA. . . . . . . . . . . . . . . .  D  ADDR  00C4H  NOT USED
-STOP . . . . . . . . . . . . . . . .  C  ADDR  01F2H  NOT USED
+STOP . . . . . . . . . . . . . . . .  C  ADDR  01FBH  NOT USED
 T0 . . . . . . . . . . . . . . . . .  B  ADDR  00B4H  NOT USED
 T1 . . . . . . . . . . . . . . . . .  B  ADDR  00B5H  NOT USED
 T2CON. . . . . . . . . . . . . . . .  D  ADDR  00C8H  NOT USED
@@ -605,12 +605,12 @@ TMOD . . . . . . . . . . . . . . . .  D  ADDR  0089H
 TR0. . . . . . . . . . . . . . . . .  B  ADDR  008CH
 TR1. . . . . . . . . . . . . . . . .  B  ADDR  008EH  NOT USED
 TR2. . . . . . . . . . . . . . . . .  B  ADDR  00CAH  NOT USED
-TRYDOWN. . . . . . . . . . . . . . .  C  ADDR  01EAH
-TRYDOWN1 . . . . . . . . . . . . . .  C  ADDR  01BDH
-TRYRIGHT . . . . . . . . . . . . . .  C  ADDR  01DAH
+TRYDOWN. . . . . . . . . . . . . . .  C  ADDR  01F3H
+TRYDOWN1 . . . . . . . . . . . . . .  C  ADDR  01C3H
+TRYRIGHT . . . . . . . . . . . . . .  C  ADDR  01E3H
 TRYRIGHT1. . . . . . . . . . . . . .  C  ADDR  01B3H
-TRYUP. . . . . . . . . . . . . . . .  C  ADDR  01E2H
-TRYUP1 . . . . . . . . . . . . . . .  C  ADDR  01B8H
+TRYUP. . . . . . . . . . . . . . . .  C  ADDR  01EBH
+TRYUP1 . . . . . . . . . . . . . . .  C  ADDR  01BBH
 TXD. . . . . . . . . . . . . . . . .  B  ADDR  00B1H  NOT USED
 WDTCON . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
 WDTPRG . . . . . . . . . . . . . . .  D  ADDR  00A7H  NOT USED
