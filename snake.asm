@@ -53,29 +53,11 @@ LCALL SetPixelFBuffer
 
 ;check if snake eats
 LCALL checkEat
-JC skipDelTail
+JC skipDelTailL ; Jump to the L-specific exit door
 
-;Delete old tail from screen
-MOV A, #50H
-ADD A, TailIdx
-MOV R0, A
-MOV A, @R0
-MOV Pbx, A
+LCALL RemoveTail
 
-MOV A, #40H
-ADD A, TailIdx
-MOV R0, A
-MOV A, @R0
-MOV Pby, A
-
-LCALL DelPixelFBuffer
-
-;Move tail pointer
-MOV A, TailIdx
-INC A
-ANL A, #0FH;Wrap around 0-15
-MOV TailIdx, A
-
+skipDelTailL:
 RET
 
 MoveR:
@@ -117,29 +99,11 @@ LCALL SetPixelFBuffer
 
 ;check if snake eats
 LCALL checkEat
-JC skipDelTail
+JC skipDelTailR ; Jump to the R-specific exit door
 
-;Delete old tail from screen
-MOV A, #50H
-ADD A, TailIdx
-MOV R0, A
-MOV A, @R0
-MOV Pbx, A
+LCALL RemoveTail
 
-MOV A, #40H
-ADD A, TailIdx
-MOV R0, A
-MOV A, @R0
-MOV Pby, A
-
-LCALL DelPixelFBuffer
-
-;Move tail pointer
-MOV A, TailIdx
-INC A
-ANL A, #0FH;Wrap around 0-15
-MOV TailIdx, A
-
+skipDelTailR:
 RET
 
 MoveU:
@@ -180,29 +144,11 @@ LCALL SetPixelFBuffer
 
 ;check if snake eats
 LCALL checkEat
-JC skipDelTail
+JC skipDelTailU ; Jump to the U-specific exit door
 
-;Delete old tail from screen
-MOV A, #50H
-ADD A, TailIdx
-MOV R0, A
-MOV A, @R0
-MOV Pbx, A
+LCALL RemoveTail
 
-MOV A, #40H
-ADD A, TailIdx
-MOV R0, A
-MOV A, @R0
-MOV Pby, A
-
-LCALL DelPixelFBuffer
-
-;Move tail pointer
-MOV A, TailIdx
-INC A
-ANL A, #0FH;Wrap around 0-15
-MOV TailIdx, A
-
+skipDelTailU:
 RET
 
 MoveD:
@@ -243,8 +189,17 @@ LCALL SetPixelFBuffer
 
 ;check if snake eats
 LCALL checkEat
-JC skipDelTail
+JC skipDelTailD ; Jump to the D-specific exit door
 
+LCALL RemoveTail
+
+skipDelTailD:
+RET
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+RemoveTail:
 ;Delete old tail from screen
 MOV A, #50H
 ADD A, TailIdx
@@ -265,8 +220,6 @@ MOV A, TailIdx
 INC A
 ANL A, #0FH;Wrap around 0-15
 MOV TailIdx, A
-
-skipDelTail:
 RET
 
 checkEat:
