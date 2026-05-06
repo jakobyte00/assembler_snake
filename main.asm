@@ -106,4 +106,5 @@ SJMP Main
 
 Stop:
 SJMP $
+CLR TR0
 END
