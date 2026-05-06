@@ -51,6 +51,10 @@ MOV @R0, A
 
 LCALL SetPixelFBuffer
 
+;check if snake eats
+LCALL checkEat
+JC skipDelTail
+
 ;Delete old tail from screen
 MOV A, #50H
 ADD A, TailIdx
@@ -111,6 +115,10 @@ MOV @R0, A
 
 LCALL SetPixelFBuffer
 
+;check if snake eats
+LCALL checkEat
+JC skipDelTail
+
 ;Delete old tail from screen
 MOV A, #50H
 ADD A, TailIdx
@@ -169,6 +177,10 @@ MOV A, Pby
 MOV @R0, A
 
 LCALL SetPixelFBuffer
+
+;check if snake eats
+LCALL checkEat
+JC skipDelTail
 
 ;Delete old tail from screen
 MOV A, #50H
@@ -229,24 +241,10 @@ MOV @R0, A
 
 LCALL SetPixelFBuffer
 
-;Check if head at food location
-MOV A, Pbx;
-CJNE A, FoodX, skipEating
-;if X coords don't match skip to tail deletion
+;check if snake eats
+LCALL checkEat
+JC skipDelTail
 
-MOV A, Pby;
-CJNE A, FoodY, skipEating
-;if Y coords don't match skip to tail deletion
-
-;eat food logic
-;generate new random coordinate
-
-;change food location
-
-;skip tail deletion
-RET
-
-skipEating:
 ;Delete old tail from screen
 MOV A, #50H
 ADD A, TailIdx
@@ -268,4 +266,30 @@ INC A
 ANL A, #0FH;Wrap around 0-15
 MOV TailIdx, A
 
+skipDelTail:
 RET
+
+checkEat:
+;Check if head at food location
+MOV A, Pbx;
+CJNE A, FoodX, skipEating
+;if X coords don't match skip to tail deletion
+
+MOV A, Pby;
+CJNE A, FoodY, skipEating
+;if Y coords don't match skip to tail deletion
+
+LCALL spawnFood
+
+SETB C ;carry bit to skip tail deletion
+RET
+
+skipEating:
+CLR C
+RET
+
+spawnFood:
+;eat food logic
+;generate new random coordinate
+
+;change food location
