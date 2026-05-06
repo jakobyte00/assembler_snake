@@ -245,4 +245,10 @@ spawnFood:
 ;eat food logic
 ;generate new random coordinate
 
+; random Y, 20H to 27H
+    MOV A, TL0       ; read timer for 8 "random" bits
+    ANL A, #007H     ; AND every bit with 00000111 so only the last 3 bits  are kept (=numbers 0-7)
+    ORL A, #020H     ; Add 20H for correct address
+    MOV FoodY, A
+
 ;change food location
