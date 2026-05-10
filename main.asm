@@ -26,6 +26,8 @@ MOV HeadIdx, #002h
 MOV TailIdx, #000h
 ;Set initial tick counter to 10
 MOV TimersToPass, #001h;#00Ah
+
+LCALL spawnFood
 ;Set initial direction to left
 ;MOV DirecFacing, #001h
 ;Set TimerMode for Timer0 to 1
