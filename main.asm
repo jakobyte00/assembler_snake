@@ -108,5 +108,19 @@ MOV DirecFacing, #004h
 SJMP Main
 
 Stop:
-SJMP $
+CLR TR0
+
+MOV Ze0, #081H
+MOV Ze1, #042H
+MOV Ze2, #024H
+MOV Ze3, #018H
+MOV Ze4, #018H
+MOV Ze5, #024H
+MOV Ze6, #042H
+MOV Ze7, #081H
+
+StopLoop:
+LCALL Render
+SJMP StopLoop
+
 END

@@ -22,6 +22,10 @@ MOV R0, A
 MOV A, @R0
 MOV B, #002h
 MUL AB
+;If out of bounds A should be 0
+JNZ MoveL_OK
+LJMP Stop
+MoveL_OK:
 MOV Pbx, A
 
 MOV A, #40H
@@ -68,6 +72,10 @@ MOV R0, A
 MOV A, @R0
 MOV B, #002h
 DIV AB;Divide by 2 to shift bit right
+;If out of bounds A should be 0
+JNZ MoveR_OK
+LJMP Stop
+MoveR_OK:
 MOV Pbx, A
 
 MOV A, #40H
@@ -119,8 +127,10 @@ ADD A, HeadIdx
 MOV R0, A
 MOV A, @R0
 INC A;Increase Y variable
+CJNE A, #028H, MoveU_OK
+LJMP Stop
+MoveU_OK:
 MOV Pby, A
-
 ;Move head pointer
 MOV A, HeadIdx
 INC A
@@ -164,6 +174,9 @@ ADD A, HeadIdx
 MOV R0, A
 MOV A, @R0
 DEC A;Decrease Y variable
+CJNE A, #01FH, MoveD_OK
+LJMP Stop
+MoveD_OK:
 MOV Pby, A
 
 ;Move head pointer
