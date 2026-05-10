@@ -30,8 +30,8 @@ MOV TimersToPass, #001h;#00Ah
 LCALL spawnFood
 ;Set initial direction to left
 ;MOV DirecFacing, #001h
-;Set TimerMode for Timer0 to 1
-MOV TMOD, #001h
+;Set TimerMode for Timer0 and Timer1 to 1
+MOV TMOD, #011h
 ;Set the hight and low bits (16 Bits therefore two registers) for timer0
 ;One tick is 1 micro second since 500 ms (intended duration does not fit into 16 bit)
 ;The timer will go down 10 times before a tick. Therfore one countdown is 50,000 mirco secs
@@ -41,8 +41,9 @@ MOV TH0, #0F8H;#03CH
 MOV TL0, #000H;#03CH
 ;Enable interrupts globally and the timer interrupts
 MOV IE, #82H
-;Start timer0
+;Start timer0 and timer 1
 SETB TR0
+SETB TR1
 
 SJMP Main
 

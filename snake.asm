@@ -243,13 +243,13 @@ RET
 
 spawnFood:
 ; random Y, 20H to 27H
-    MOV A, TL0       ; read timer for 8 "random" bits
+    MOV A, TL1       ; read timer for 8 "random" bits
     ANL A, #007H     ; AND bits with 00000111 so only the last 3 bits are kept (=numbers 0-7)
     ORL A, #020H     ; add 20H to get the correct memory row address
     MOV FoodY, A
 
 ; random X, bitmask 01H to 80H
-    MOV A, TH0       ; read high timer for a different "random" value
+    MOV A, TH1       ; read high timer for a different "random" value
     ANL A, #007H     ; keep only the last 3 bits (number 0-7)
     MOV R2, A        ; store this in R2 as our counter for how many shifts to do
     MOV A, #001H     ; start with the first pixel mask (00000001)
@@ -260,7 +260,7 @@ randomXLoop:         ; loop to move the bit to the correct column
 
 doShift:
     RL A             ; rotate the bit one spot to the left
-    DEC R2           ; subtract 1 from the shift counter
+    DEC R2         ; subtract 1 from the shift counter
     SJMP randomXLoop
 
 saveFoodX:
