@@ -266,6 +266,43 @@ doShift:
 saveFoodX:
     MOV FoodX, A
 
+;check for snake collision
+    MOV B, TailIdx   ; start checking from the tail
+
+checkLoop:
+;check if food Y matches snake Y
+    MOV A, #40H
+    ADD A, B
+    MOV R0, A
+    MOV A, @R0
+    CJNE A, FoodY, nextSnakePart ; if Y coords don't match skip to next snake part
+
+;check if food X matches snake X
+    MOV A, #50H
+    ADD A, B
+    MOV R0, A
+    MOV A, @R0
+    CJNE A, FoodX, nextSnakePart ; if X coords don't match skip to next snake part
+
+;food spawned inside snake, try again
+    SJMP spawnFood
+
+nextSnakePart:
+;check if at head
+    MOV A, B
+    CJNE A, HeadIdx, continueCheck
+;if yes, whole snake is checked => continue at safe to draw
+    SJMP safeToDraw
+
+continueCheck:
+;move to next snake index
+    MOV A, B
+    INC A
+    ANL A, #0FH      ; wrap around 0-15
+    MOV B, A
+    SJMP CheckLoop   ; loop back to check next part
+
+safeToDraw:
 ; change food location
     MOV Pby, FoodY
     MOV Pbx, FoodX
