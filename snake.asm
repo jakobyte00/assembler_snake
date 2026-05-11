@@ -209,9 +209,6 @@ LCALL RemoveTail
 skipDelTailD:
 RET
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 RemoveTail:
 ;Delete old tail from screen
 MOV A, #50H

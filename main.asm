@@ -15,7 +15,6 @@ MOV P2, #0F0h;#070h
 ;MOV DirecFacing, #001h
 ;MOV DesiredDirec, #001h
 ;Draw initial snake
-;Draw initial snake
 MOV Ze3, #00Ch
 MOV Ze4, #004h
 ;Save initial snake to ring buffer
