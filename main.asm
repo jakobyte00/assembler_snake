@@ -11,6 +11,10 @@ $INCLUDE (render.asm)
 Innit:
 ;Reset input
 MOV P2, #0F0h;#070h
+;Set initial direction
+;MOV DirecFacing, #001h
+;MOV DesiredDirec, #001h
+;Draw initial snake
 ;Draw initial snake
 MOV Ze3, #00Ch
 MOV Ze4, #004h
@@ -57,8 +61,47 @@ MOV TL0, #000H
 ;Decrease timer counter
 DJNZ TimersToPass, End_IR
 ;If 0 timers left, reset to 10 and execute movement
-MOV TimersToPass, #001h;#00Ah
-;Check facing direction and execute movement in that direction
+MOV TimersToPass, #001h
+
+;Valitdation logiv: Prevent 180 turns
+MOV A, DesiredDirec
+CJNE A, #001H, CheckR
+;Check what the snake is currently doing
+MOV A, DirecFacing
+;If not moving Right, the turn is allowed
+CJNE A, #002H, ApplyNew
+;Otherwise: Ignore input, keep old direction
+SJMP ExecuteMove
+CheckR:
+MOV A, DesiredDirec
+;If not Right, check if Up
+CJNE A, #002H, CheckU
+MOV A, DirecFacing
+CJNE A, #001H, ApplyNew ;If not moving Left, the turn is allowed
+SJMP ExecuteMove
+
+CheckU:
+MOV A, DesiredDirec
+;If not Up, check if Down
+CJNE A, #003H, CheckD
+MOV A, DirecFacing
+;If not moving Down, the turn is allowed
+CJNE A, #004H, ApplyNew
+SJMP ExecuteMove
+
+CheckD:
+MOV A, DesiredDirec
+CJNE A, #004H, ExecuteMove
+MOV A, DirecFacing
+CJNE A, #003H, ApplyNew
+SJMP ExecuteMove
+
+ApplyNew:
+;Update the actual movement direction
+MOV DirecFacing, DesiredDirec
+
+;Actually move the snake
+ExecuteMove:
 MOV A, DirecFacing
 CJNE A, #001H, TryRight1
 LCALL MoveL
@@ -89,19 +132,19 @@ Main:
 LCALL Render
 MOV A, P2
 CJNE A, #070H, TryRight
-MOV DirecFacing, #001h
+MOV DesiredDirec, #001h
 SJMP Main
 TryRight:
 CJNE A, #0E0H, TryUp
-MOV DirecFacing, #002h
+MOV DesiredDirec, #002h
 SJMP Main
 TryUp:
 CJNE A, #0B0H, TryDown
-MOV DirecFacing, #003h
+MOV DesiredDirec, #003h
 SJMP Main
 TryDown:
 CJNE A, #0D0H, Main
-MOV DirecFacing, #004h
+MOV DesiredDirec, #004h
 SJMP Main
 
 Stop:
