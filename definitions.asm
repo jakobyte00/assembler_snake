@@ -1,4 +1,4 @@
-;Image row adresses (y):
+;Image row addresses (y):
 Ze0 DATA 020H
 Ze1 DATA 021H
 Ze2 DATA 022H
@@ -24,6 +24,6 @@ TimersToPass DATA 034H
 ;Direction the snake is currently facing at
 ;#1-left,#2-right,#3-up,#4-down
 DirecFacing DATA 035H
-;Food location adresses
+;Food location addresses
 FoodY DATA 070H; ROW
 FoodX DATA 071H; COLUMN
