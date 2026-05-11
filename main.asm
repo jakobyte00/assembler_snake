@@ -11,9 +11,9 @@ $INCLUDE (render.asm)
 Innit:
 ;Reset input
 MOV P2, #0F0h;#070h
-;Set initial direction (IMPORTANT!)
-MOV DirecFacing, #001h
-MOV DesiredDirec, #001h
+;Set initial direction
+;MOV DirecFacing, #001h
+;MOV DesiredDirec, #001h
 ;Draw initial snake
 ;Draw initial snake
 MOV Ze3, #00Ch
@@ -61,7 +61,7 @@ MOV TL0, #000H
 ;Decrease timer counter
 DJNZ TimersToPass, End_IR
 ;If 0 timers left, reset to 10 and execute movement
-MOV TimersToPass, #001h ; Reset tick counter[cite: 2]
+MOV TimersToPass, #001h
 
 ;Valitdation logiv: Prevent 180 turns
 MOV A, DesiredDirec
