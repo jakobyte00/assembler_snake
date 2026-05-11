@@ -1,4 +1,4 @@
-;Image row adresses (y):
+;Image row addresses (y):
 Ze0 DATA 020H
 Ze1 DATA 021H
 Ze2 DATA 022H
@@ -26,3 +26,7 @@ TimersToPass DATA 034H
 DirecFacing DATA 035H
 ;Direction desired by the Player
 DesiredDirec DATA 036H
+;Food location addresses
+FoodY DATA 070H; ROW
+FoodX DATA 071H; COLUMN
+
