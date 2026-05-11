@@ -21,20 +21,13 @@ definitions                                                                     
                         19     ;Snake pixels ring buffer
                         20     ;y-coordinates from 40H to 4FH
                         21     ;x-coordinates from 50H to 5FH
-                        22     ;Timers that need to pass for the next game tick
-  0034                  23     TimersToPass DATA 034H
-                        24     ;Direction the snake is currently facing at
-                        25     ;#1-left,#2-right,#3-up,#4-down
-  0035                  26     DirecFacing DATA 035H
-                        27     ;Direction desired by the Player
-  0036                  28     DesiredDirec DATA 036H
 ****WARNING:Missing`END'directive
 ASSEMBLY COMPLETE, NO ERRORS FOUND, 2 WARNINGS
 
 
 ERROR SUMMARY:
 Line 1, WARNING:Noinstructionfoundataddress0x00.ConsiderusageofappropriateORGdirectivetoclarifycorrectcodeplacement.
-Line 29, WARNING:Missing`END'directive
+Line 22, WARNING:Missing`END'directive
 
 SYMBOL TABLE:
 ??MCU_8051_IDE . . . . . . . . . . .  N  NUMB  8051H  NOT USED
@@ -90,8 +83,6 @@ CPRL2. . . . . . . . . . . . . . . .  B  ADDR  00C8H  NOT USED
 CR . . . . . . . . . . . . . . . . .  B  ADDR  00DEH  NOT USED
 CT2. . . . . . . . . . . . . . . . .  B  ADDR  00C9H  NOT USED
 CY . . . . . . . . . . . . . . . . .  B  ADDR  00D7H  NOT USED
-DESIREDDIREC . . . . . . . . . . . .  D  ADDR  0036H  NOT USED
-DIRECFACING. . . . . . . . . . . . .  D  ADDR  0035H  NOT USED
 DP0H . . . . . . . . . . . . . . . .  D  ADDR  0083H  NOT USED
 DP0L . . . . . . . . . . . . . . . .  D  ADDR  0082H  NOT USED
 DP1H . . . . . . . . . . . . . . . .  D  ADDR  0085H  NOT USED
@@ -213,7 +204,6 @@ TI . . . . . . . . . . . . . . . . .  B  ADDR  0099H  NOT USED
 TIMER0 . . . . . . . . . . . . . . .  C  ADDR  000BH  NOT USED
 TIMER1 . . . . . . . . . . . . . . .  C  ADDR  001BH  NOT USED
 TIMER2 . . . . . . . . . . . . . . .  C  ADDR  002BH  NOT USED
-TIMERSTOPASS . . . . . . . . . . . .  D  ADDR  0034H  NOT USED
 TL0. . . . . . . . . . . . . . . . .  D  ADDR  008AH  NOT USED
 TL1. . . . . . . . . . . . . . . . .  D  ADDR  008BH  NOT USED
 TL2. . . . . . . . . . . . . . . . .  D  ADDR  00CCH  NOT USED
