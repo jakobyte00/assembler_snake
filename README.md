@@ -4,7 +4,7 @@ Classic Snake on an 8×8 LED matrix, written entirely in 8051 assembly. The snak
 
 ## How it works
 
-Movement is driven by Timer0 in 16-bit mode, overflowing roughly every 2 ms. A countdown (`TimersToPass`) sits in front of the actual move so the effective game tick is slower than the interrupt rate — changing that value changes the speed. The snake body is a 16-slot circular ring buffer; head and tail indices chase each other around it. Eating food skips the tail-delete step for that tick, growing the snake by one segment. 180-degree reversals are filtered in the ISR: if the desired direction is exactly opposite the current one, the input is ignored.
+Movement is driven by Timer0 in 16-bit mode, overflowing roughly every second. A countdown (`TimersToPass`) sits in front of the actual move so the effective game tick is slower than the interrupt rate — changing that value changes the speed. The snake body is a 16-slot circular ring buffer; head and tail indices chase each other around it. Eating food skips the tail-delete step for that tick, growing the snake by one segment. 180-degree reversals are filtered in the ISR: if the desired direction is exactly opposite the current one, the input is ignored.
 
 The display is multiplexed row-by-row out of an 8-byte frame buffer (Ze0–Ze7 at 0x20–0x27). Each byte is a column bitmask - bit 7 is the leftmost LED. The render loop runs continuously in the main loop between input polls, so there's no tearing from the ISR firing mid-frame in practice.
 
